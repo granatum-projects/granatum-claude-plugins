@@ -1,52 +1,45 @@
-# Granatum — plugins para o Claude Code
+# Granatum para o Claude
 
-Marketplace oficial dos plugins do [Granatum](https://www.granatum.com.br).
+Conecte o Claude ao Granatum da sua empresa e peça relatórios, consulte
+lançamentos e registre movimentos conversando normalmente — sem abrir o sistema.
 
 ## Instalação
+
+No Claude Code, rode:
 
 ```
 /plugin marketplace add granatum-projects/granatum-claude-plugins
 /plugin install granatum-financeiro@granatum
 ```
 
-Para fixar uma versão:
+Na primeira vez que usar, o Claude pede para você conectar sua conta Granatum.
+Autorize com o mesmo login que já usa no sistema. Depois, `/granatum-config`
+confirma que está tudo funcionando.
+
+Não é preciso configurar chave de API, servidor ou variável de ambiente.
+
+## Plugins disponíveis
+
+| Plugin | O que faz |
+| --- | --- |
+| [`granatum-financeiro`](./plugins/granatum-financeiro) | Fluxo de caixa, DRE, consulta de lançamentos e registro de receitas e despesas |
+
+Cada plugin tem seu próprio README com os comandos, o que esperar e o que fazer
+quando algo não funciona. Para o `granatum-financeiro`, veja
+[plugins/granatum-financeiro/README.md](./plugins/granatum-financeiro/README.md).
+
+## Fixar uma versão
+
+Por padrão você acompanha a versão mais recente. Para travar numa específica:
 
 ```
 /plugin marketplace add granatum-projects/granatum-claude-plugins@v1.0.0
 ```
 
-## Plugins
+## Suporte
 
-| Plugin | O que faz |
-| --- | --- |
-| [`granatum-financeiro`](./plugins/granatum-financeiro) | Relatórios (DRE e fluxo de caixa), consulta de lançamentos e criação de lançamentos com confirmação obrigatória, via conector MCP do Granatum |
+***REMOVED***
 
-## Desenvolvimento
+---
 
-Testar um plugin localmente, sem instalar:
-
-```
-claude --plugin-dir ./plugins/granatum-financeiro
-```
-
-Validar antes de publicar ou submeter:
-
-```
-claude plugin validate ./plugins/granatum-financeiro
-claude plugin validate .          # valida o marketplace.json
-```
-
-Depois de editar um plugin numa sessão aberta, `/reload-plugins`.
-
-## Estrutura
-
-```
-.claude-plugin/marketplace.json     catálogo do marketplace
-plugins/<nome>/
-  .claude-plugin/plugin.json        manifesto do plugin
-  .mcp.json                         conectores MCP
-  skills/<nome>/SKILL.md            skills e comandos
-```
-
-Nada além de `plugin.json` vai dentro de `.claude-plugin/` — `skills/`, `.mcp.json`
-e afins ficam na raiz do plugin.
+Quem for contribuir com o repositório: veja [DEVELOPMENT.md](./DEVELOPMENT.md).
