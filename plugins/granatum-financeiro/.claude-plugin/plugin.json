@@ -1,6 +1,6 @@
 {
   "name": "granatum-financeiro",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Assistente financeiro conectado ao Granatum: relatorios (DRE e fluxo de caixa), consulta de lancamentos e criacao de lancamentos com confirmacao obrigatoria.",
   "author": {
     "name": "Granatum",
