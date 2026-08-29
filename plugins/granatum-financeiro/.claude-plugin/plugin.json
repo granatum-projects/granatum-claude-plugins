@@ -8,7 +8,7 @@
     "url": "https://www.granatum.com.br"
   },
   "homepage": "https://www.granatum.com.br",
-  "repository": "https://github.com/webgoal/granatum-claude-plugins",
+  "repository": "https://github.com/granatum-projects/granatum-claude-plugins",
   "license": "MIT",
   "keywords": ["granatum", "financeiro", "dre", "fluxo-de-caixa", "contabilidade"]
 }

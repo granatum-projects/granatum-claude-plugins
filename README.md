@@ -5,14 +5,14 @@ Marketplace oficial dos plugins do [Granatum](https://www.granatum.com.br).
 ## Instalação
 
 ```
-/plugin marketplace add webgoal/granatum-claude-plugins
+/plugin marketplace add granatum-projects/granatum-claude-plugins
 /plugin install granatum-financeiro@granatum
 ```
 
 Para fixar uma versão:
 
 ```
-/plugin marketplace add webgoal/granatum-claude-plugins@v1.0.0
+/plugin marketplace add granatum-projects/granatum-claude-plugins@v1.0.0
 ```
 
 ## Plugins
