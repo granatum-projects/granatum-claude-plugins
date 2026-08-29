@@ -2,11 +2,6 @@
 
 Marketplace oficial dos plugins do [Granatum](https://www.granatum.com.br).
 
-> **Atenção — apontado para STAGING.** O `.mcp.json` do `granatum-financeiro`
-> está com `https://api.ww2.granatum.com.br/v1/mcp` enquanto validamos o
-> client OAuth `claude-code`. Trocar para `https://api.ww2.granatum.com.br/v1/mcp`
-> antes de publicar ou submeter.
-
 ## Instalação
 
 ```
