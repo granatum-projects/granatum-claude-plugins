@@ -2,7 +2,11 @@
   "mcpServers": {
     "Granatum": {
       "type": "http",
-      "url": "https://api.ww2.granatum.com.br/v1/mcp"
+      "url": "https://api.ww2.granatum.com.br/v1/mcp",
+      "oauth": {
+        "clientId": "claude-code",
+        "scopes": "reports:read lancamentos:write offline"
+      }
     }
   }
 }
