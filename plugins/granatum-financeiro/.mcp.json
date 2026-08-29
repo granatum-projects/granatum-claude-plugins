@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "Granatum": {
+      "type": "http",
+      "url": "https://api.ww2.granatum.com.br/v1/mcp"
+    }
+  }
+}
