@@ -44,26 +44,24 @@ O pipeline de review da Anthropic roda a mesma checagem em toda submissão.
 
 ## Autenticação do conector
 
-O `.mcp.json` declara `oauth.clientId` em vez de deixar o Claude Code descobrir
-sozinho. É necessário: a API do Granatum **não** tem Dynamic Client
-Registration (`/oauth/register` responde 404 por decisão), e sem o client_id
-estático o Claude Code aborta na descoberta, com "does not support dynamic
-client registration".
-
-O client é `claude-code`, público — um CLI distribuído não tem onde guardar
-segredo, e quem protege o fluxo é o PKCE. Não confundir com o client `claude`,
-que é o conector do claude.ai e tem outro redirect registrado.
+O `.mcp.json` declara `oauth.clientId` explicitamente em vez de deixar o Claude
+Code negociar o registro sozinho. Sem isso o plugin nem chega a abrir o
+navegador. O client é público: um CLI distribuído não tem onde guardar segredo,
+e quem protege o fluxo é o PKCE mais o redirect restrito a loopback.
 
 Não fixamos `callbackPort`: o Claude Code sorteia uma porta a cada tentativa, e
 o servidor aceita qualquer porta de loopback (RFC 8252 §7.3). Fixar a porta
 faria o fluxo falhar sempre que ela estivesse ocupada na máquina do usuário.
 
-## Apontar para staging
+Detalhes de configuração do servidor OAuth ficam na documentação interna, não
+aqui.
 
-Durante uma validação, troque a `url` do `.mcp.json` para
-`https://api.ww2.granatum.com.br/v1/mcp`. **Devolva para produção antes
-de publicar ou submeter** — é uma troca fácil de esquecer, e o plugin publicado
-apontando para staging não funciona para ninguém.
+## Apontar para outro ambiente
+
+Durante uma validação, troque a `url` do `.mcp.json` para o endpoint do
+ambiente de testes. **Devolva para produção antes de publicar ou submeter** — é
+uma troca fácil de esquecer, e o plugin publicado apontando para outro ambiente
+não funciona para ninguém.
 
 ## Publicar uma versão
 
