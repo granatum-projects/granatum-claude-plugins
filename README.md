@@ -38,7 +38,7 @@ Por padrão você acompanha a versão mais recente. Para travar numa específica
 
 ## Suporte
 
-***REMOVED***
+[Fale com a gente](https://www.granatum.com.br/financeiro/contato)
 
 ---
 
