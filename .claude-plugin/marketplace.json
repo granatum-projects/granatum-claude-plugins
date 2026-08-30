@@ -1,7 +1,8 @@
 {
   "name": "granatum",
   "owner": {
-    "name": "Granatum"
+    "name": "Granatum LTDA",
+    "url": "https://www.granatum.com.br"
   },
   "metadata": {
     "description": "Plugins oficiais do Granatum para o Claude Code.",
@@ -10,6 +11,7 @@
   "plugins": [
     {
       "name": "granatum-financeiro",
+      "displayName": "Granatum Financeiro",
       "source": "./plugins/granatum-financeiro",
       "description": "Assistente financeiro conectado ao Granatum: DRE, fluxo de caixa, consulta e criacao de lancamentos com confirmacao obrigatoria.",
       "category": "productivity",
