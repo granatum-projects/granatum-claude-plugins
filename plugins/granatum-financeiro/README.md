@@ -6,17 +6,34 @@ normalmente — sem abrir o sistema.
 
 ## Instalação
 
-1. Abra o arquivo `granatum-financeiro.plugin` que você recebeu.
-2. Clique em **Instalar**.
-3. Na primeira vez que usar, o Claude vai pedir para você conectar sua conta
-   Granatum. Autorize com o mesmo login que você já usa no sistema. Se quiser
-   poder registrar lançamentos pelo Claude, e não só consultar, autorize também
-   a permissão de escrita nessa etapa.
-4. Digite `/granatum-config` para confirmar que está tudo funcionando.
+### No Claude (site ou aplicativo)
 
-Não é preciso configurar chave de API, servidor ou variável de ambiente. A
-autorização é feita pela sua própria conta Granatum, e o Claude só enxerga o
-que o seu usuário já enxerga.
+1. **Configurações → Plugins → Adicionar Marketplace → Adicionar de um repositório**
+2. Informe `https://github.com/granatum-projects/granatum-claude-plugins`
+3. Clique no **+** para adicionar o Granatum Financeiro
+4. **Vincule sua conta Granatum** — sem esta etapa o plugin não funciona
+5. **Comece uma conversa nova** para o Claude reconhecer o plugin
+
+### No Claude Code
+
+```
+/plugin marketplace add granatum-projects/granatum-claude-plugins
+/plugin install granatum-financeiro@granatum
+```
+
+### Autorização
+
+Ao conectar, você entra com o mesmo login que já usa no Granatum. Se quiser
+registrar lançamentos pelo Claude, e não só consultar, autorize também a
+permissão de escrita nessa etapa.
+
+Não tem conta ainda, ou esqueceu a senha? A própria tela de login tem os links
+para cadastrar-se e recuperar a senha.
+
+Depois, digite `/granatum-config` para confirmar que está tudo funcionando.
+
+Não é preciso configurar chave de API, servidor ou variável de ambiente. O
+Claude só enxerga o que o seu usuário já enxerga.
 
 ## Comandos
 
@@ -55,6 +72,13 @@ O Claude sempre diz qual dos dois está usando. Se os números divergirem muito,
 justamente essa diferença — e vale perguntar a ele o porquê.
 
 ## Se algo não funcionar
+
+**O plugin aparece instalado mas nada funciona:** provavelmente falta vincular a
+conta Granatum — instalar e autorizar são duas etapas separadas. Verifique a
+conexão nas configurações do plugin.
+
+**O Claude não parece conhecer os comandos:** comece uma conversa nova. Conversas
+abertas antes da instalação podem não reconhecer o plugin.
 
 **Pede autenticação de novo:** reconecte o Granatum nas configurações de
 conectores.

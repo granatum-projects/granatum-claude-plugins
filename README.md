@@ -7,15 +7,20 @@ lançamentos e registre movimentos conversando normalmente — sem abrir o siste
 
 ### No Claude (site ou aplicativo)
 
-1. Abra o menu de personalização e vá na aba de **Plugins**.
-2. Em plugins pessoais, use o **+** e escolha **adicionar marketplace**.
-3. Escolha adicionar **a partir de um repositório** e informe:
+1. Abra **Configurações → Plugins**.
+2. Clique em **Adicionar Marketplace** e escolha **Adicionar de um repositório**.
+3. Informe a URL deste repositório:
 
    ```
-   granatum-projects/granatum-claude-plugins
+   https://github.com/granatum-projects/granatum-claude-plugins
    ```
 
-4. Com o marketplace adicionado, instale o **Granatum Financeiro**.
+4. Clique no **+** para adicionar o **Granatum Financeiro**.
+5. **Vincule sua conta Granatum.** Esta etapa não é opcional: sem ela o plugin
+   aparece instalado, mas nenhuma consulta funciona. Autorize com o mesmo login
+   que você já usa no Granatum.
+6. **Comece uma conversa nova.** Conversas já abertas podem não reconhecer o
+   plugin recém-instalado.
 
 ### No Claude Code (terminal)
 
@@ -24,14 +29,14 @@ lançamentos e registre movimentos conversando normalmente — sem abrir o siste
 /plugin install granatum-financeiro@granatum
 ```
 
-### Depois de instalar
+### Sobre a autorização
 
-Na primeira vez que usar, o Claude pede para você conectar sua conta Granatum.
-Autorize com o mesmo login que já usa no sistema. Se quiser registrar
-lançamentos pelo Claude, e não só consultar, autorize também a permissão de
-escrita nessa etapa.
+Na primeira vez, o Claude abre a tela do Granatum para você entrar e autorizar.
+Se quiser registrar lançamentos pelo Claude, e não só consultar, autorize também
+a permissão de escrita nessa etapa — sem ela os relatórios funcionam, mas criar
+ou editar lançamentos não.
 
-Depois, `/granatum-config` confirma que está tudo funcionando.
+Depois de conectar, `/granatum-config` confirma que está tudo funcionando.
 
 Não é preciso configurar chave de API, servidor ou variável de ambiente.
 
