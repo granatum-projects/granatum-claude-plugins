@@ -5,16 +5,33 @@ lançamentos e registre movimentos conversando normalmente — sem abrir o siste
 
 ## Instalação
 
-No Claude Code, rode:
+### No Claude (site ou aplicativo)
+
+1. Abra o menu de personalização e vá na aba de **Plugins**.
+2. Em plugins pessoais, use o **+** e escolha **adicionar marketplace**.
+3. Escolha adicionar **a partir de um repositório** e informe:
+
+   ```
+   granatum-projects/granatum-claude-plugins
+   ```
+
+4. Com o marketplace adicionado, instale o **Granatum Financeiro**.
+
+### No Claude Code (terminal)
 
 ```
 /plugin marketplace add granatum-projects/granatum-claude-plugins
 /plugin install granatum-financeiro@granatum
 ```
 
+### Depois de instalar
+
 Na primeira vez que usar, o Claude pede para você conectar sua conta Granatum.
-Autorize com o mesmo login que já usa no sistema. Depois, `/granatum-config`
-confirma que está tudo funcionando.
+Autorize com o mesmo login que já usa no sistema. Se quiser registrar
+lançamentos pelo Claude, e não só consultar, autorize também a permissão de
+escrita nessa etapa.
+
+Depois, `/granatum-config` confirma que está tudo funcionando.
 
 Não é preciso configurar chave de API, servidor ou variável de ambiente.
 
