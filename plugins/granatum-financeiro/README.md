@@ -13,6 +13,7 @@ normalmente — sem abrir o sistema.
 3. Clique no **+** para adicionar o Granatum Financeiro
 4. **Vincule sua conta Granatum** — sem esta etapa o plugin não funciona
 5. **Comece uma conversa nova** para o Claude reconhecer o plugin
+6. Rode **`/granatum-config`** para confirmar a conexão e ver suas empresas
 
 ### No Claude Code
 
@@ -23,9 +24,14 @@ normalmente — sem abrir o sistema.
 
 ### Autorização
 
-Ao conectar, você entra com o mesmo login que já usa no Granatum. Se quiser
-registrar lançamentos pelo Claude, e não só consultar, autorize também a
-permissão de escrita nessa etapa.
+Ao conectar, você entra com o mesmo login que já usa no Granatum. A autorização
+é única: são todas as permissões pedidas ou nenhuma — não há como liberar só a
+consulta e recusar o registro de lançamentos.
+
+Se você quer usar o plugin apenas para consultar, o controle está nas permissões
+de ferramentas do próprio Claude: bloqueie `criar_lancamento`,
+`atualizar_lancamento` e `excluir_lancamento`, ou marque-as como **sempre
+perguntar**.
 
 Não tem conta ainda, ou esqueceu a senha? A própria tela de login tem os links
 para cadastrar-se e recuperar a senha.
@@ -83,10 +89,10 @@ abertas antes da instalação podem não reconhecer o plugin.
 **Pede autenticação de novo:** reconecte o Granatum nas configurações de
 conectores.
 
-**Diz que não tem permissão para registrar lançamentos:** ao conectar o
-Granatum, é possível autorizar só a consulta ou também o registro. Se você
-autorizou apenas a consulta, os relatórios funcionam normalmente mas criar ou
-editar lançamentos não. Reconecte o Granatum e autorize também a escrita.
+**Diz que não tem permissão para registrar lançamentos:** verifique se as
+ferramentas de escrita não estão bloqueadas nas permissões de ferramentas do
+Claude. Se não for isso, reconecte o Granatum — a autorização pode ter sido
+concedida antes de o seu usuário ter permissão de lançamento no sistema.
 
 **Relatório vem todo zerado:** normalmente não é falta de dados. Costuma ser
 categoria fora da árvore da DRE ou período informado errado. Peça ao Claude para

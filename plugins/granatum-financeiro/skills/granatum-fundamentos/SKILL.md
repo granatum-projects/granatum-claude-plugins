@@ -97,11 +97,18 @@ Se uma ferramenta de escrita retornar código `-32002` com `escopo_insuficiente`
 a conexão do usuário foi autorizada apenas para leitura. Não é erro nos dados e
 não adianta ajustar os campos e tentar de novo.
 
-Dizer isso ao usuário em uma frase: a conexão atual só tem permissão de leitura,
-e para registrar lançamentos é preciso reconectar o Granatum autorizando também
-a escrita. Depois disso, parar. **Não** repetir a chamada, não tentar outra
-ferramenta de escrita, não sugerir contorno. Consultas continuam funcionando
-normalmente — seguir ajudando com relatórios e leitura.
+Dizer ao usuário, em uma frase: a conexão atual não tem permissão de escrita, e
+reconectar o Granatum resolve — a autorização nova já inclui o registro de
+lançamentos.
+
+**Não** dizer para "autorizar a escrita" na tela de consentimento: essa escolha
+não existe. A autorização é tudo-ou-nada, e mandar o usuário procurar uma opção
+que não está lá o deixa girando em falso. O caso típico é conexão antiga,
+autorizada antes de o registro de lançamentos existir.
+
+Depois de avisar, parar. **Não** repetir a chamada, não tentar outra ferramenta
+de escrita, não sugerir contorno. Consultas continuam funcionando normalmente —
+seguir ajudando com relatórios e leitura.
 
 **Atualização preserva o que não é enviado:**
 

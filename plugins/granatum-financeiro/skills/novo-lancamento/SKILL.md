@@ -91,7 +91,7 @@ Informar que foi criado e o ID gerado. Se o usuário quiser corrigir, usar
 
 | Erro | Causa | O que fazer |
 | --- | --- | --- |
-| `-32002` `escopo_insuficiente` | conexão autorizada só para leitura | pedir para reconectar o Granatum concedendo escrita, e parar — não repetir a chamada |
+| `-32002` `escopo_insuficiente` | conexão sem permissão de escrita, em geral autorizada antes de o registro existir | pedir para reconectar o Granatum — a autorização nova já inclui escrita — e parar; não repetir a chamada, e não mandar procurar opção de escrita no consentimento, que é tudo-ou-nada |
 | Categoria recusada | `aceita_lancamento=false` — é categoria-pai | listar as folhas abaixo e pedir escolha |
 | Conta recusada | `permite_lancamento=false` | listar contas com `apenas_para_lancamento=true` |
 | Data de pagamento rejeitada | data futura não é permitida | omitir para deixar previsto, ou usar data passada |
