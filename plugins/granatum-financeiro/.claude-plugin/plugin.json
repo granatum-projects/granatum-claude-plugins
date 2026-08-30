@@ -8,7 +8,7 @@
     "name": "Granatum LTDA",
     "url": "https://www.granatum.com.br"
   },
-  "homepage": "https://www.granatum.com.br/financeiro",
+  "homepage": "https://github.com/granatum-projects/granatum-claude-plugins/tree/main/plugins/granatum-financeiro",
   "repository": "https://github.com/granatum-projects/granatum-claude-plugins",
   "license": "MIT",
   "keywords": [
