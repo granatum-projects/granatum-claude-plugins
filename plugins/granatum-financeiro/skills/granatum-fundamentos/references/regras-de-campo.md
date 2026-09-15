@@ -73,6 +73,26 @@ Ao ajudar o usuário a escolher, mostrar o caminho completo (ex.:
 `Despesas > Operacionais > Energia elétrica`), não só o nome da folha. Nomes de
 folha se repetem entre ramos diferentes.
 
+Existe categoria **mista** (aceita receita e despesa) — nela o tipo efetivo do
+lançamento vem só do `tipo_lancamento`/sinal do valor, não da categoria.
+
+Categoria não é uma trava de sinal, nem mesmo categoria exclusiva de receita ou
+de despesa. A API não valida `tipo_categoria` contra o sinal do lançamento ao
+gravar — só usa isso para exibição em relatórios. Então categoria escolhida
+certa **não garante** sinal certo: sempre confirmar o `tipo_lancamento`
+(receita/despesa) com o usuário, independente da categoria, e nunca inferir o
+tipo a partir da categoria selecionada.
+
+Isso é usado de propósito, não só um risco a evitar: para registrar um
+**estorno** ou **devolução** (ex.: cliente devolveu um valor recebido, banco
+estornou uma despesa, empréstimo concedido que voltou), lança-se um
+`tipo_lancamento` do sinal oposto **na mesma categoria** do lançamento
+original, em vez de criar ou procurar uma categoria "de estorno" separada.
+Mantém o histórico na mesma linha da DRE/fluxo de caixa e o líquido da
+categoria já sai correto. Vale confirmar com o usuário se a intenção é essa
+antes de assumir — o mesmo padrão (tipo oposto ao esperado da categoria) também
+pode ser erro de digitação.
+
 ## Períodos nos relatórios
 
 `periodo_referencia` é o **último** período da janela, não o primeiro. A janela

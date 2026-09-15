@@ -75,6 +75,14 @@ Escritas atingem os livros reais do cliente. Não existe modo de simulação.
 - Validar a categoria: só usar item com `aceita_lancamento=true`. Categoria-pai é
   recusada pela API. Se o usuário nomear uma categoria-pai, mostrar as folhas
   disponíveis abaixo dela e pedir para escolher.
+- Categoria **não** valida o `tipo_lancamento`. Existe categoria mista (aceita
+  os dois tipos), e mesmo categoria exclusiva de receita ou despesa não
+  bloqueia um lançamento do tipo oposto — a API não faz essa checagem. Nunca
+  inferir receita/despesa a partir da categoria escolhida: confirmar o tipo
+  diretamente com o usuário. Isso é usado de propósito para registrar
+  **estorno/devolução na mesma categoria** do lançamento original (ex.: cliente
+  devolveu um recebimento, empréstimo concedido que voltou) — não é só um risco
+  a evitar. Detalhes em `references/regras-de-campo.md`.
 - Validar a conta: usar `listar_contas` com `apenas_para_lancamento=true`.
 
 **Duplicatas:**
