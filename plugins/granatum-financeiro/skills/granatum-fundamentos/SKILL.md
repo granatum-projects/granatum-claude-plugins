@@ -56,8 +56,9 @@ Um DRE ou fluxo de caixa que volta com tudo em zero quase nunca significa
 3. **Período de referência** — confirmar o formato (`mensal`=YYYY-MM,
    `trimestral`=YYYY-Tn, `semestral`=YYYY-Sn, `anual`=YYYY) e se o período já
    fechou.
-4. **Filtros herdados** — `conta_ids`, `categoria_ids` ou
-   `centro_custo_lucro_ids` restritivos vindos de uma pergunta anterior.
+4. **Filtros herdados** — `conta_ids`, `categoria_ids`,
+   `centro_custo_lucro_ids` ou `tag_ids` restritivos vindos de uma pergunta
+   anterior.
 
 Cruzar com `obter_lancamentos` no mesmo período para checar se há movimento
 bruto. Só afirmar "não houve movimentação" depois disso.
@@ -150,7 +151,9 @@ usuário, nunca o objeto inteiro.
 
 ## Quando abrir a referência
 
-Ao montar uma escrita, interpretar um erro da API ou investigar um relatório com
-resultado inesperado, ler `references/regras-de-campo.md`. Ele traz as regras de
-`identificador_externo`, a diferença entre omitir e passar zero em criação e
-atualização, os formatos de período e o procedimento de drill-down.
+Ao montar uma escrita, interpretar um erro da API, investigar um relatório com
+resultado inesperado ou pedir campos extras de lançamentos, ler
+`references/regras-de-campo.md`. Ele traz as regras de `identificador_externo`,
+a diferença entre omitir e passar zero em criação e atualização, os campos de
+leitura de `obter_lancamentos` (centro de custo, `campos_adicionais`, filtro por
+tags), os formatos de período e o procedimento de drill-down.

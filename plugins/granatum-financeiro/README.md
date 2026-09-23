@@ -54,7 +54,9 @@ Claude só enxerga o que o seu usuário já enxerga.
 | `/novo-lancamento` | Registra uma receita ou despesa |
 
 Os comandos são atalhos. Perguntar em linguagem normal funciona igual: "como foi
-julho", "o que vence essa semana", "quanto gastei com energia esse ano".
+julho", "o que vence essa semana", "quanto gastei com energia esse ano", "quais
+despesas de agosto estão sem tag", "quanto o setor Comercial gastou no
+trimestre", "quantas parcelas do notebook ainda faltam".
 
 ## Antes de registrar qualquer coisa
 

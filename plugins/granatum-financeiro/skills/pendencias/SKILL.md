@@ -31,8 +31,9 @@ disser "atrasados", limitar a `periodo_fim` = ontem.
 
 ## Coleta
 
-`obter_lancamentos` com a janela, `regime: caixa`, `ordenacao: data_asc` e
-`limite: 100`. Se vier truncado, avisar o total e estreitar a janela em vez de
+`obter_lancamentos` com a janela, `regime: caixa`, `ordenacao: data_asc`,
+`limite: 100` e `campos_adicionais: ["parcelamento"]`, para identificar parcelas
+("3 de 12") e cobranças recorrentes sem deduzir pela descrição. Se vier truncado, avisar o total e estreitar a janela em vez de
 apresentar lista parcial como completa.
 
 ## Apresentação
@@ -45,7 +46,8 @@ agrupar por faixa de vencimento:
 - Próximos 7 dias
 - Depois disso
 
-Para cada item: vencimento, descrição, pessoa quando houver, valor. Subtotal por
+Para cada item: vencimento, descrição, pessoa quando houver, parcela quando
+houver, valor. Subtotal por
 faixa e total geral de cada lado.
 
 Abrir a resposta com os números que importam: quanto está vencido, quanto vence

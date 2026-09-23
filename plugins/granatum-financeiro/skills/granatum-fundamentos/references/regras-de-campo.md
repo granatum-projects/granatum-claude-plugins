@@ -61,6 +61,49 @@ omitir deixa o Granatum resolver.
 Consequência prática: nunca montar um `atualizar_lancamento` reenviando o objeto
 inteiro "por segurança". Enviar só o delta confirmado com o usuário.
 
+## Campos de leitura em obter_lancamentos
+
+**Sempre presentes:** além de categoria, conta e pessoa, cada lançamento traz
+`centro_custo_lucro_id` e `centro_custo_lucro_descricao`. Sem centro de custo, o
+id vem `0` e a descrição `null`. O `0` é o mesmo valor aceito pelo filtro
+`centro_custo_lucro_ids`, então dá para copiar o id da resposta direto para a
+próxima consulta.
+
+**Sob demanda (`campos_adicionais`):** só aparecem quando pedidos. Um grupo não
+pedido não vem nem como `null`; um grupo pedido e sem valor vem explícito
+(`null`, `0` ou `[]`). A resposta confirma o que veio em
+`campos_adicionais_incluidos`. Valor fora da lista é recusado com a lista dos
+aceitos.
+
+| Grupo | Campos | Observação |
+| --- | --- | --- |
+| `tags` | `tags: [{id, descricao}]` | `[]` quando o lançamento não tem tag |
+| `forma_pagamento` | `forma_pagamento_id`, `forma_pagamento_descricao` | id `0` = nenhuma |
+| `tipo_documento` | `tipo_documento_id`, `tipo_documento_descricao` | id `0` = nenhum |
+| `parcelamento` | `grupo_id`, `numero_repeticao`, `total_repeticoes`, `periodicidade`, `infinito` | tudo `null` em lançamento avulso |
+| `identificador_externo` | `identificador_externo` | chave do sistema de origem |
+
+`periodicidade` vem como código: `DS` seg. a sex., `D1` diária, `D7` semanal,
+`D15` quinzenal, `M1` mensal, `M2` bimestral, `M3` trimestral, `M6` semestral,
+`M12` anual. Traduzir para o usuário, nunca exibir o código cru.
+`infinito: true` indica repetição sem data para acabar (assinaturas,
+mensalidades); nesse caso `total_repeticoes` não representa um fim.
+`grupo_id` identifica todas as parcelas da mesma série.
+
+## Filtro por tags
+
+`tag_ids` com ids obtidos em `listar_tags`. Tags não têm hierarquia.
+
+| Pedido | Parâmetros |
+| --- | --- |
+| com qualquer uma das tags | `tag_ids: [A, B]` (padrão `tags_modo: qualquer`) |
+| com todas as tags | `tag_ids: [A, B]`, `tags_modo: todas` |
+| sem nenhuma tag | `tag_ids: [0]` |
+| sem tag ou com a tag A | `tag_ids: [0, A]` |
+
+`[0, A]` com `tags_modo: todas` é contraditório e a API recusa. O filtro vale
+também para `totais`: o total disponível reflete só os lançamentos com as tags.
+
 ## Categorias
 
 `listar_categorias` devolve a hierarquia com o caminho completo. Cada item traz

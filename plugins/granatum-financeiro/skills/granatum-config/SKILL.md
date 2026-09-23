@@ -25,6 +25,7 @@ Estabelecer o contexto de trabalho e confirmar que a conexão funciona nas três
    - `listar_categorias` com `apenas_ativas=true`
    - `listar_formas_pagamento`
    - `listar_centros_custo_lucro`
+   - `listar_tags`
 4. Fazer um teste de leitura leve: `obter_fluxo_caixa` com
    `periodicidade: mensal` e `quantidade_periodos: 1`.
 
@@ -35,7 +36,7 @@ Um resumo curto, em linguagem de dono de empresa, não de API:
 - Empresa conectada.
 - Quantas contas bancárias estão disponíveis para lançamento, nomeando-as.
 - Quantas categorias existem e quantas aceitam lançamento.
-- Formas de pagamento e centros de custo cadastrados, se houver.
+- Formas de pagamento, centros de custo e tags cadastrados, se houver.
 - Se o teste de leitura trouxe movimento, uma linha com o resultado do último
   mês fechado.
 
