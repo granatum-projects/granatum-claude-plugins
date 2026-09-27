@@ -113,3 +113,9 @@ interface do Granatum. O plugin trabalha com lançamentos simples.
 - **8 skills** — 7 comandos e uma base de comportamento (`granatum-fundamentos`)
   que carrega as regras de regime contábil e os guardrails de escrita em toda
   interação
+
+## Privacidade
+
+O plugin conversa com o servidor MCP do Granatum usando a sua conta. O
+tratamento dos dados segue a [Política de Privacidade do
+Granatum](https://contas.granatum.com.br/politica-de-privacidade).
