@@ -20,12 +20,17 @@ gerador, independente de ter sido pago.
 
 - `periodicidade` — `mensal` por padrão; `trimestral`, `semestral` ou `anual`
   quando pedido.
-- `quantidade_periodos` — 6 por padrão. Margem só faz sentido em série.
+- `quantidade_periodos` — enviar sempre 6 (omitido, a tool usa 4). Margem só
+  faz sentido em série.
 - `periodo_referencia` — último período da janela. Omitir usa o último período
   completo. Formato conforme a periodicidade (ver `granatum-fundamentos`).
 - `limite_categorias` — 10 por padrão.
 - `incluir_observacoes` — ativar quando o usuário pedir explicação, não só
   números.
+- `modo_visualizacao` — omitir, que usa `completo`: realizado, previsto a vencer
+  e em atraso, todos somados no total. Usar `realizado` quando o usuário quiser
+  o resultado só do que já foi pago ou recebido, e `previsto` para o que ainda
+  não foi, vencido ou não.
 
 ## Apresentação
 

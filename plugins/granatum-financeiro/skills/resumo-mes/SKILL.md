@@ -27,6 +27,9 @@ e `periodo_referencia` no mês alvo:
 - `obter_fluxo_caixa` — entradas, saídas, líquido, saldo acumulado
 - `obter_dre` — receita, custos, margens, resultado
 
+Sem `modo_visualizacao` nas duas (padrão `completo`). No fluxo de caixa, o em
+atraso vem à parte e fica fora do saldo; se for relevante, citar nos destaques.
+
 Seis períodos dão a série histórica necessária para a comparação. Apresentar o
 mês alvo em detalhe e usar os anteriores só para contexto de tendência.
 

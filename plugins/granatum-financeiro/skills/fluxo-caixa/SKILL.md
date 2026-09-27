@@ -20,11 +20,16 @@ saiu, pela data de pagamento.
 
 - `periodicidade` — `mensal` por padrão. Usar `trimestral`, `semestral` ou
   `anual` quando o usuário pedir essa granularidade explicitamente.
-- `quantidade_periodos` — 6 por padrão. A série histórica é o que dá sentido ao
-  número do mês; não pedir um período só.
+- `quantidade_periodos` — enviar sempre 6 (omitido, a tool usa 4). A série
+  histórica é o que dá sentido ao número do mês; não pedir um período só.
 - `periodo_referencia` — último período da janela. Omitir usa o último período
   completo. Formato conforme a periodicidade (ver `granatum-fundamentos`).
 - `limite_categorias` — 10 por padrão.
+- `modo_visualizacao` — omitir, que usa `completo`, o padrão do Granatum:
+  realizado, previsto a vencer e em atraso vêm separados, e o total e o saldo
+  somam só realizado + previsto a vencer (o em atraso fica fora). Usar
+  `realizado` quando o usuário quiser só o que de fato entrou e saiu, e
+  `previsto` para o que falta pagar ou receber, vencido ou não.
 
 Aplicar `conta_ids`, `categoria_ids` ou `centro_custo_lucro_ids` apenas quando o
 usuário restringir. Ao aplicar um filtro, declarar isso na resposta.

@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "granatum-financeiro",
   "displayName": "Granatum Financeiro",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Assistente financeiro conectado ao Granatum: relatorios (DRE e fluxo de caixa), consulta de lancamentos e criacao de lancamentos com confirmacao obrigatoria.",
   "icon": "./assets/icon.png",
   "author": {
