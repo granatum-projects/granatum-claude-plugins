@@ -21,8 +21,8 @@
     "privacyPolicyURL": "https://contas.granatum.com.br/politica-de-privacidade",
     "termsOfServiceURL": "https://contas.granatum.com.br/eula",
     "defaultPrompt": [
-      "Mostre meu fluxo de caixa deste mês.",
-      "Mostre minha DRE do mês passado.",
+      "Como foi meu resultado nos últimos três meses e o que mais pesou nas despesas?",
+      "O que vence nos próximos sete dias e quanto preciso ter em caixa?",
       "Paguei 450 de energia hoje pelo Banco do Brasil - registra pra mim."
     ],
     "composerIcon": "./assets/icon.png",
