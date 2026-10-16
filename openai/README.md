@@ -103,6 +103,8 @@ A validação local não comprova aceitação pelo portal, disponibilidade dos l
 compatibilidade OAuth ou aprovação da revisão. Confira **Metadata & Skills** e
 **MCPs** depois do upload. Credenciais de revisão, demonstração e demais materiais
 exigidos são preenchidos no portal; nenhuma credencial deve entrar no ZIP.
+**Este repositório é público:** login e senha da conta de teste dos revisores nunca
+entram aqui (nem em `listing.json`, nem em commit), só no formulário do portal.
 
 Referências oficiais consultadas em 2026-10-15:
 

@@ -23,7 +23,7 @@
     "defaultPrompt": [
       "Mostre meu fluxo de caixa deste mês.",
       "Mostre minha DRE do mês passado.",
-      "Quais contas vencem nesta semana?"
+      "Paguei 450 de energia hoje pelo Banco do Brasil - registra pra mim."
     ],
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/icon.png"
