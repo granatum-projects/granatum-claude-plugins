@@ -29,9 +29,10 @@ Ao conectar, você entra com o mesmo login que já usa no Granatum. A autorizaç
 consulta e recusar o registro de lançamentos.
 
 Se você quer usar o plugin apenas para consultar, o controle está nas permissões
-de ferramentas do próprio Claude: bloqueie `criar_lancamento`,
-`atualizar_lancamento` e `excluir_lancamento`, ou marque-as como **sempre
-perguntar**.
+de ferramentas do próprio Claude: bloqueie as ferramentas de escrita
+(`criar_lancamento`, `atualizar_lancamento`, `excluir_lancamento`,
+`registrar_pagamento`, `criar_pessoa`, `anexar_arquivo` e `excluir_anexo`), ou
+marque-as como **sempre perguntar**.
 
 Não tem conta ainda, ou esqueceu a senha? A própria tela de login tem os links
 para cadastrar-se e recuperar a senha.
@@ -58,10 +59,37 @@ julho", "o que vence essa semana", "quanto gastei com energia esse ano", "quais
 despesas de agosto estão sem tag", "quanto o setor Comercial gastou no
 trimestre", "quantas parcelas do notebook ainda faltam".
 
+## O que o Claude faz por você
+
+Além das consultas, ele registra e altera movimentos conversando:
+
+- **Criar** receita, despesa, parcelamento, recorrência, lançamento dividido em
+  itens e transferência entre contas; cadastrar cliente ou fornecedor novo.
+- **Alterar** um lançamento, vários de uma vez, uma parcela ou o restante de uma
+  série, os itens de um lançamento dividido, tags e transferências.
+- **Excluir** um lançamento, vários, uma parcela ou o restante de uma série, um
+  lançamento dividido inteiro ou uma transferência.
+- **Pagar**: dar baixa, trocar a data do pagamento, pagar com juros, desconto ou
+  só uma parte (a diferença vira um novo lançamento em aberto) e estornar.
+- **Anexos**: listar, baixar o link de um anexo, anexar e excluir (em duas
+  chamadas; anexar depende de o ambiente conseguir enviar o arquivo, e o
+  Claude avisa quando não consegue).
+- **Saldo** das contas num dia que já passou, ou dia a dia numa conta
+  (inclusive previsto, que é estimativa).
+
 ## Antes de registrar qualquer coisa
 
 O Claude **sempre** mostra um resumo e espera sua confirmação antes de criar um
 lançamento. Nada é gravado sem você dizer que pode.
+
+Quando um pedido alcança mais de um lançamento (vários de uma vez, ou "este e os
+próximos" de uma série), ele **não grava na primeira vez**: mostra a prévia, com
+quantos serão alterados, quantos já estão pagos e o que fica de fora, e só
+grava depois da sua confirmação. Numa série, ele pergunta se é só aquela
+ocorrência ou ela e as seguintes. Excluir um item de um lançamento dividido
+exclui o lançamento inteiro, e o Claude mostra os itens antes. Se algum
+lançamento do pedido estiver travado (conciliado, em período bloqueado), nada é
+alterado e ele diz quais.
 
 Se o Granatum apontar que já existe um lançamento parecido, o Claude mostra o
 que encontrou e pergunta se é para criar mesmo assim. Ele nunca decide isso
@@ -104,15 +132,26 @@ verificar — ele sabe diagnosticar isso.
 categoria final, não nas que servem para agrupar. Peça as opções disponíveis e
 escolha uma delas.
 
-**Lançamento em série ou transferência:** esses precisam ser editados na
-interface do Granatum. O plugin trabalha com lançamentos simples.
+**Lançamento com cobrança ou NFS-e agendada:** só aceita alterar observação,
+documento, categoria, centro de custo, identificador e tags. Valor, vencimento,
+conta e o resto se alteram pelo sistema do Granatum; o Claude avisa quando é o
+caso.
+
+**Lançamento conciliado ou em período bloqueado:** não muda de valor, conta nem
+data de pagamento, e o Claude diz o motivo em vez de tentar de novo.
+
+**Anexar arquivo não funcionou:** depende de o Claude conseguir executar um
+comando com acesso à rede (é o caso do Claude Code). Onde não consegue, ele
+explica e orienta a anexar pela tela do lançamento no Granatum.
 
 ## Componentes
 
 - **1 conector MCP** — Granatum (produção)
-- **8 skills** — 7 comandos e uma base de comportamento (`granatum-fundamentos`)
-  que carrega as regras de regime contábil e os guardrails de escrita em toda
-  interação
+- **9 skills** — 7 comandos e duas bases de comportamento: `granatum-fundamentos`
+  (regras de regime contábil e guardrails de escrita, em toda interação) e
+  `escrita-avancada` (série, prévia e confirmação, dividido, transferência,
+  pagamento e anexos)
+- **18 ferramentas** do conector: 11 de consulta e 7 que gravam
 
 ## Privacidade
 

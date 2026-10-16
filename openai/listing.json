@@ -1,0 +1,43 @@
+{
+  "name": "app-6a32a7da351c81919db830cd602abcf5",
+  "description": "Gestão financeira empresarial no Granatum: consulte contas a pagar e a receber, saldos, fluxo de caixa e DRE e registre receitas, despesas e baixas de pagamentos, com confirmação do usuário.",
+  "homepage": "https://www.granatum.com.br",
+  "interface": {
+    "displayName": "Granatum Financeiro",
+    "shortDescription": "Gestão financeira empresarial",
+    "longDescription": "O Granatum Financeiro conecta empresários e equipes financeiras aos dados da sua empresa no Granatum Empresarial para acompanhar contas a pagar e a receber e organizar a rotina financeira. Consulte receitas, despesas, vencimentos e saldos por conta; acompanhe o fluxo de caixa e a Demonstração do Resultado do Exercício (DRE); investigue os lançamentos que compõem cada relatório.\n\nRegistre receitas e despesas, altere ou exclua lançamentos e registre baixas ou estornos de pagamentos no Granatum. Trabalhe com parcelamentos, recorrências, lançamentos divididos, registros de transferências entre contas, pessoas e anexos. As alterações seguem as permissões do usuário conectado e exigem confirmação explícita, com prévia quando atingem vários lançamentos.\n\nÉ necessário ter uma conta Granatum Empresarial e autorizar a conexão. Em contas com acesso a várias empresas, selecione a empresa para consultar ou alterar seus dados. Se o ambiente não permitir enviar anexos, use a tela do lançamento no Granatum.",
+    "developerName": "Granatum",
+    "category": "Finance",
+    "capabilities": [
+      "Contas a pagar e a receber",
+      "Fluxo de caixa e saldos por conta",
+      "Demonstração do Resultado do Exercício (DRE)",
+      "Registro e edição de receitas e despesas",
+      "Registro de baixas e estornos de pagamentos",
+      "Consulta e gestão de anexos de lançamentos"
+    ],
+    "websiteURL": "https://www.granatum.com.br",
+    "supportURL": "https://www.granatum.com.br/financeiro/contato",
+    "privacyPolicyURL": "https://contas.granatum.com.br/politica-de-privacidade",
+    "termsOfServiceURL": "https://contas.granatum.com.br/eula",
+    "defaultPrompt": [
+      "Mostre meu fluxo de caixa deste mês.",
+      "Mostre minha DRE do mês passado.",
+      "Quais contas vencem nesta semana?"
+    ],
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
+  },
+  "extensions": {
+    "com.openai": {
+      "publication": {
+        "translations": {
+          "en-US": {
+            "subtitle": "Business financial management",
+            "description": "Connect business owners and finance teams to their company data in Granatum Empresarial. Track accounts payable and receivable, income, expenses, due dates, account balances, cash flow and income statements. Investigate the financial entries behind each report. Create, edit or delete financial entries and record payment settlements or reversals in Granatum. Manage installments, recurring and split entries, records of transfers between accounts, people and attachments. Changes follow the connected user permissions and require explicit confirmation, with a preview when several entries are affected. A Granatum Empresarial account and authorization are required. Select a company when your account has access to several. If the host cannot upload attachments, use the entry screen in Granatum."
+          }
+        }
+      }
+    }
+  }
+}

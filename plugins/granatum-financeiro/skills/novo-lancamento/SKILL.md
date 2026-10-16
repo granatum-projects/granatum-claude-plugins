@@ -14,6 +14,11 @@ metadata:
 Fluxo guiado de criação. Escrita real nos livros do cliente, sem modo de
 simulação. A confirmação humana não é opcional.
 
+Este fluxo cobre receita e despesa, avulsas ou com repetição. Transferência
+entre contas, lançamento dividido em itens, cadastro de pessoa nova, edição,
+exclusão, pagamento e anexo estão na skill `escrita-avancada`; leia-a quando o
+pedido for um deles.
+
 Antes de montar o lançamento, ler
 `../granatum-fundamentos/references/regras-de-campo.md`. Ele traz as regras
 completas de `identificador_externo`, a diferença entre omitir e passar zero nos
@@ -26,7 +31,18 @@ Obrigatórios: `tipo_lancamento` (receita ou despesa), `valor`,
 `data_vencimento`, `categoria_id`, `conta_id`, `identificador_externo`.
 
 Opcionais que valem perguntar: `descricao`, `pessoa_id`, `data_pagamento`,
-`documento`, `forma_pagamento_id`, `centro_custo_lucro_id`.
+`documento`, `forma_pagamento_id`, `centro_custo_lucro_id`, `tag_ids`.
+
+**Repetição.** Se o lançamento se repete (parcelas, mensalidade, recorrente),
+preencher `repeticao`: `periodicidade` e `total_repeticoes` (quantidade de
+ocorrências, contando a primeira) **ou** `infinito: true`, nunca os dois. Cada
+ocorrência é um lançamento real, então a **quantidade entra no resumo** que o
+usuário confirma. Com `data_pagamento`, só a primeira ocorrência nasce paga. A
+resposta traz o `grupo_id` da série e a `quantidade_criada`.
+
+**Dividido.** Se o usuário quer um lançamento com vários itens (várias
+categorias, um desconto), usar `itens` em vez de `valor` e `categoria_id`; os
+detalhes estão em `escrita-avancada`.
 
 Aproveitar o que o usuário já disse. "Paguei 450 de energia hoje" já entrega
 tipo, valor, data de pagamento e uma pista de categoria — perguntar apenas o que
@@ -41,14 +57,17 @@ falta, não repetir o que foi dado.
 - **Conta**: `listar_contas` com `apenas_para_lancamento=true`. Se houver só
   uma, adotá-la e mencionar qual.
 - **Pessoa**: `buscar_pessoas` quando o usuário nomear cliente ou fornecedor.
-  Se não achar, seguir sem pessoa em vez de travar o fluxo.
+  Se não achar, oferecer cadastrar com `criar_pessoa` (ver `escrita-avancada`)
+  ou seguir sem pessoa; não travar o fluxo.
 - **Forma de pagamento** e **centro de custo**: só resolver se o usuário
   mencionar.
 
 ## 3. Montar o identificador_externo
 
 Se existe chave natural — número da nota, ID do extrato, ID do sistema de
-origem — usar crua, sem prefixo.
+origem — usar crua, sem prefixo, nome do fornecedor ou tipo: a nota 7788 é
+`7788`, nunca `CLARO-NF-7788`. É ela que detecta a duplicata; um identificador
+diferente na segunda conversa não casa e grava a duplicata.
 
 Se não existe, gerar `mcp:<uuid v4>`. **Gerar o UUID uma vez** e reutilizar em
 qualquer retry desta mesma tentativa. UUID novo a cada retry desliga a proteção
@@ -84,8 +103,9 @@ parecer óbvio que não é duplicata de verdade.
 
 ## 6. Confirmar o resultado
 
-Informar que foi criado e o ID gerado. Se o usuário quiser corrigir, usar
-`atualizar_lancamento` com o mesmo `lancamento_id`, nunca criar outro.
+Informar que foi criado e o ID gerado (com repetição, o `grupo_id` e quantas
+ocorrências foram criadas). Se o usuário quiser corrigir, usar
+`atualizar_lancamento` com o mesmo id em `lancamento_ids`, nunca criar outro.
 
 ## Erros comuns
 
@@ -95,6 +115,7 @@ Informar que foi criado e o ID gerado. Se o usuário quiser corrigir, usar
 | Categoria recusada | `aceita_lancamento=false` — é categoria-pai | listar as folhas abaixo e pedir escolha |
 | Conta recusada | `permite_lancamento=false` | listar contas com `apenas_para_lancamento=true` |
 | Data de pagamento rejeitada | data futura não é permitida | omitir para deixar previsto, ou usar data passada |
+| Data recusada por ano | data de entrada com ano fora de 1600 a 9999 | corrigir a data com o usuário |
 | Valor rejeitado | valor deve ser positivo | corrigir o sinal via `tipo_lancamento` |
 
 O erro de escopo é o único da tabela que não se resolve ajustando os dados. Nos

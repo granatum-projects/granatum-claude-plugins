@@ -7,7 +7,7 @@ description: >
   "contas a pagar", "contas a receber", "criar um lançamento", "registrar uma
   despesa", "lançar uma receita", ou quando qualquer ferramenta do Granatum for
   chamada. Contém as regras de regime contábil, resolução de empresa e os
-  guardrails obrigatórios de escrita.
+  guardrails obrigatórios de escrita (criar, alterar, excluir, pagar e anexar).
 metadata:
   version: "0.1.0"
 ---
@@ -20,6 +20,8 @@ usuário não invocar nenhum comando específico.
 ## Resolver a empresa antes de qualquer coisa
 
 Toda ferramenta do Granatum exige `wgi_conta_id`. Nunca inventar esse valor.
+`wgi_conta_id` é a empresa (de `listar_empresas`), não a conta bancária (`conta_id`):
+"conta 89595" dito pelo usuário não é o id da empresa.
 
 1. Chamar `listar_empresas` na primeira operação da sessão.
 2. Se houver uma única empresa, adotá-la e seguir sem perguntar.
@@ -67,6 +69,11 @@ bruto. Só afirmar "não houve movimentação" depois disso.
 
 Escritas atingem os livros reais do cliente. Não existe modo de simulação.
 
+Valem para toda ferramenta que grava: `criar_lancamento`,
+`atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento`,
+`criar_pessoa`, `anexar_arquivo` e `excluir_anexo`. Série, prévia, dividido,
+transferência, pagamento e anexos têm o detalhe na skill `escrita-avancada`.
+
 **Antes de `criar_lancamento`:**
 
 - Reunir os dados, montar um resumo legível (tipo, valor, vencimento, categoria,
@@ -92,13 +99,41 @@ Se a resposta vier com status `confirmacao_necessaria`, apresentar os
 `lancamentos_existentes` ao usuário e perguntar se deve criar mesmo assim. Só
 reenviar com `confirmar_duplicata: true` após um "sim" humano explícito.
 **Nunca definir `confirmar_duplicata: true` por conta própria**, em nenhuma
-circunstância, nem para "resolver" um erro, nem em retry automático.
+circunstância, nem para "resolver" um erro, nem em retry automático. Vale
+também para a transferência, que tem um identificador por ponta.
+
+**Prévia e escopo:**
+
+`atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento` e
+`excluir_anexo` não gravam na primeira vez quando a chamada alcança mais de um
+lançamento: devolvem `confirmacao_necessaria` com a prévia. Em lançamento de
+série, sem `escopo_serie` devolvem `escopo_necessario`. Mostrar a prévia ou
+perguntar o escopo, esperar a resposta humana e só então repetir os mesmos
+argumentos com `confirmado: true` ou com o `escopo_serie` escolhido. **Nunca**
+definir `confirmado` nem escolher o escopo por conta própria.
+
+**Regra do escopo.** Nunca preencha `escopo_serie` sem que o usuário tenha dito o escopo nesta conversa. Sem isso, chame a tool **sem** o parâmetro, deixe-a devolver `escopo_necessario` e pergunte. Exemplo:
+
+> Usuário: "Exclui a ocorrência de 10/10 da assinatura de internet."
+> Você: chama `excluir_lancamento` sem `escopo_serie`; a tool devolve `escopo_necessario`.
+> Você: "É uma assinatura recorrente. Excluo só esta ocorrência ou esta e as próximas?"
+> Usuário: "Só esta." Agora sim, chame com `escopo_serie: "so_este"`.
+
+**Regra da confirmação.** `confirmado: true` só depois de mostrar ao usuário a prévia **daquele pedido exato** e de ele dizer sim. Se o conjunto de ids, o escopo ou os campos mudaram (por exemplo, ao tirar o id impedido), chame de novo **sem** `confirmado`, mostre a prévia nova e pergunte de novo. O "sim" à prévia antiga não vale para o pedido novo. Escolher uma opção (por exemplo, "refazer sem o conciliado") não confirma a prévia nova: ela tem de ser mostrada antes. Exemplo:
+
+> Prévia: 3 ids, 1 em `impedidos` (conciliado). Usuário: "Então faz sem ele."
+> Você: chama de novo com 2 ids, sem `confirmado`; a tool devolve a prévia nova.
+> Você: "Sem o conciliado, serão excluídos 2 lançamentos (R$ ...). Confirma?"
+> Usuário: "Sim." Só agora chame com `confirmado: true`.
 
 **Exclusão:**
 
 Só chamar `excluir_lancamento` quando o usuário pedir exclusão de forma direta e
 inequívoca, identificando o lançamento. Confirmar antes. Nunca excluir como
 efeito colateral de uma correção — para corrigir, usar `atualizar_lancamento`.
+O id de um item de lançamento dividido exclui o lançamento **inteiro**, sempre
+depois da prévia; para tirar só um item, `itens_remover` em
+`atualizar_lancamento`.
 
 **Escopo de escrita ausente:**
 
@@ -121,12 +156,15 @@ seguir ajudando com relatórios e leitura.
 
 **Atualização preserva o que não é enviado:**
 
-Em `atualizar_lancamento`, omitir um campo preserva o valor atual; passar `0` nos
+Em `atualizar_lancamento` (que recebe `lancamento_ids`, de 1 a 100), omitir um
+campo preserva o valor atual; passar `0` nos
 campos de vínculo (`pessoa_id`, `centro_custo_lucro_id`, `forma_pagamento_id`)
 é que remove. Isso é o **oposto** de `criar_lancamento`, onde omitir e passar
 zero dão no mesmo. Para limpar um vínculo, enviar `0` explicitamente — omitir
 retorna sucesso sem alterar nada. Enviar somente o delta confirmado com o
-usuário, nunca o objeto inteiro.
+usuário, nunca o objeto inteiro. Campo enviado com o valor que já está
+gravado conta como não enviado: se nada difere, a ferramenta não grava e
+responde com o estado atual.
 
 ## Regras de campo que causam erro silencioso
 
@@ -134,11 +172,14 @@ usuário, nunca o objeto inteiro.
 - `data_pagamento` é o único indicador de pago. Presente = pago, ausente =
   previsto. Não pode ser data futura.
 - `data_competencia` omitida faz o Granatum resolver sozinho. Não inventar valor.
-- `identificador_externo` é obrigatório e é o que protege contra duplicidade.
-  Regras completas em `references/regras-de-campo.md`.
-- `atualizar_lancamento` só opera em lançamento simples. Séries, lançamentos
-  compostos e transferências precisam ser editados na interface do Granatum —
-  informar isso ao usuário em vez de tentar.
+- `identificador_externo` é obrigatório em despesa e receita e é o que protege
+  contra duplicidade. Use o número do documento como está no papel (a nota 7788
+  → `7788`), sem prefixo, nome do fornecedor ou tipo. Na transferência não se informa: há um por ponta,
+  opcionais. Regras completas em `references/regras-de-campo.md`.
+- `data_pagamento` não se altera por `atualizar_lancamento` em lançamento: dar
+  baixa, trocar a data de um pagamento e estornar é `registrar_pagamento`. Na
+  transferência, a baixa é `data_pagamento` em `atualizar_lancamento`.
+- Data de entrada com ano fora de 1600 a 9999 é recusada.
 
 ## Como apresentar números
 
@@ -156,4 +197,6 @@ resultado inesperado ou pedir campos extras de lançamentos, ler
 `references/regras-de-campo.md`. Ele traz as regras de `identificador_externo`,
 a diferença entre omitir e passar zero em criação e atualização, os campos de
 leitura de `obter_lancamentos` (centro de custo, `campos_adicionais`, filtro por
-tags), os formatos de período e o procedimento de drill-down.
+tags, paginação), os formatos de período e o procedimento de drill-down. Para
+alterar em lote, mexer em série, dividido ou transferência, pagar ou anexar, ler
+a skill `escrita-avancada`.

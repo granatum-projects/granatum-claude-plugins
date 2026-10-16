@@ -90,3 +90,9 @@ curado a critério dela.
 
 O Connectors Directory é outra submissão, do servidor MCP sozinho — não deste
 repositório.
+
+## Pacote para a OpenAI
+
+Gere o ZIP completo com `python3 scripts/gerar_pacote_openai.py`.
+O comando usa a skill consolidada de `chatgpt/`, o MCP de produção e o manifesto
+nativo da OpenAI. Veja [fontes, validações e envio](openai/README.md).

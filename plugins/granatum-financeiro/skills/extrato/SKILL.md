@@ -18,15 +18,21 @@ anterior a corrigir algo.
 
 ## Parâmetros
 
-`obter_lancamentos` exige `periodo_inicio` e `periodo_fim` (`YYYY-MM-DD`). Sem
-período informado, usar o mês corrente e dizer qual janela foi usada.
+`obter_lancamentos` exige `periodo_inicio` e `periodo_fim` (`YYYY-MM-DD`), com
+janela de no máximo 12 meses. Sem período informado, usar o mês corrente e dizer
+qual janela foi usada. O período **não** é exigido quando a busca traz
+`lancamento_ids`, `grupo_id` ou `identificador_externo`: aí o lançamento é achado
+sem saber a data.
 
 Filtros opcionais, aplicar conforme o pedido:
 
 | Pedido do usuário | Filtro |
 | --- | --- |
 | "gastos com energia" | `categoria_ids` via `listar_categorias` |
-| "pagamentos ao fornecedor X" | `pessoa_id` — buscar com `buscar_pessoas` |
+| "pagamentos ao fornecedor X" | `pessoa_ids` — buscar com `buscar_pessoas` |
+| "todas as parcelas dessa compra" | `grupo_id` (vem em `campos_adicionais: ["parcelamento"]`) |
+| "o lançamento da nota 4521 / do ERP" | `identificador_externo` (igualdade exata) |
+| "esses lançamentos pelo id" | `lancamento_ids` (até 100); um dividido vem com `itens` |
 | "movimentação da conta Y" | `conta_ids` via `listar_contas` |
 | "gastos do setor Comercial" | `centro_custo_lucro_ids` via `listar_centros_custo_lucro` |
 | "lançamentos com a tag Marketing" | `tag_ids` via `listar_tags` |
@@ -56,10 +62,15 @@ exige**, porque cada grupo aumenta o tamanho da resposta.
 | nota fiscal, recibo, tipo de documento | `tipo_documento` |
 | parcelas, recorrência, "quantas faltam" | `parcelamento` |
 | conferir o que veio de integração ou ERP | `identificador_externo` |
+| notas, boletos, comprovantes anexados | `anexos` |
 
 Filtrar por tag e **mostrar** as tags são coisas diferentes: `tag_ids` só
 recorta o conjunto. Para exibir as tags de cada item, pedir também
 `campos_adicionais: ["tags"]`.
+
+Anexos: `anexos` traz `{id, nome, tipo, tamanho_bytes}` por lançamento, sem o
+link; o link vem de `obter_anexo` com o `anexo_id`, válido por 30 minutos, e só
+se entrega ao usuário que pediu (ver `escrita-avancada`).
 
 Não inferir repetição, parcela ou forma de pagamento pela descrição ou por
 padrão de datas. Se a pergunta depende disso, pedir o grupo correspondente e
@@ -88,16 +99,19 @@ corrido. O usuário quer entender a composição, não ler 80 linhas.
 ## Truncamento
 
 `limite` máximo é 100. Quando a resposta traz `total_disponivel` maior que o
-retornado, informar quantos existem e propor um filtro concreto que reduza o
-conjunto — período mais curto, categoria específica, `valor_min`. Nunca
-apresentar lista truncada como se fosse o conjunto completo.
+retornado, ela traz também `proxima_pagina`. Informar quantos existem. Se o
+usuário precisa do conjunto inteiro, chamar de novo com `pagina` igual a
+`proxima_pagina`, mantendo os mesmos filtros e a mesma `ordenacao`; se não,
+propor um filtro concreto que reduza o conjunto — período mais curto,
+categoria específica, `valor_min`. Nunca apresentar lista truncada como se
+fosse o conjunto completo.
 
 ## Correções
 
 Se o usuário identificar um lançamento errado, usar `atualizar_lancamento` com
-o `lancamento_id`, confirmando as alterações antes. Séries, lançamentos
-compostos e transferências não são editáveis por aqui — informar que precisam
-ser ajustados na interface do Granatum.
+o id em `lancamento_ids`, confirmando as alterações antes. Série, dividido,
+transferência e alteração em lote têm regras próprias (escopo, prévia,
+itens): seguir a skill `escrita-avancada`.
 
 Exclusão só com pedido direto e inequívoco, nunca como efeito colateral de uma
 correção.

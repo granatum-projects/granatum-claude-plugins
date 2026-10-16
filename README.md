@@ -39,7 +39,8 @@ dá para liberar só a consulta e recusar o registro de lançamentos.
 
 Quem controla isso é o próprio Claude, nas permissões de ferramentas. Lá você
 pode bloquear as ferramentas de escrita (`criar_lancamento`,
-`atualizar_lancamento`, `excluir_lancamento`) e manter as de leitura liberadas,
+`atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento`,
+`criar_pessoa`, `anexar_arquivo` e `excluir_anexo`) e manter as de leitura liberadas,
 ou marcar as de escrita como **sempre perguntar** — assim cada gravação passa
 pela sua confirmação.
 

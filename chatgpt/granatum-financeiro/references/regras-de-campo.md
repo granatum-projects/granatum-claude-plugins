@@ -1,0 +1,192 @@
+# Regras de campo e diagnóstico
+
+Consultar quando montar uma escrita, interpretar um erro da API, ou investigar
+um relatório com resultado inesperado.
+
+## identificador_externo
+
+Campo obrigatório em `criar_lancamento` de despesa e receita. É a chave que o
+Granatum usa para detectar duplicata. Na transferência não se informa: ela tem
+`identificador_externo_origem` e `identificador_externo_destino`, opcionais, com
+a mesma checagem de duplicata.
+
+**Quando existe chave natural** (número da nota fiscal, ID do extrato bancário,
+ID do sistema de origem): usar a chave natural crua, **sem prefixo**. Isso
+permite detectar colisão com lançamentos vindos de outras origens — importação
+de OFX, conciliação bancária, integração de ERP. Prefixar destrói essa proteção.
+
+**Quando não existe chave natural**: usar `mcp:<uuid v4>`.
+
+Gerar o UUID **uma única vez** por tentativa de lançamento e reutilizá-lo em
+qualquer retry da mesma tentativa. Gerar um UUID novo a cada retry anula
+completamente a proteção contra duplicidade — a segunda tentativa passa como se
+fosse um lançamento diferente e o cliente fica com dois registros iguais.
+
+## Campos de data
+
+| Campo | Significado |
+| --- | --- |
+| `data_vencimento` | Obrigatório. Quando o valor vence. |
+| `data_pagamento` | Presente = pago. Ausente = previsto. Não pode ser futura. |
+| `data_competencia` | Se omitida, o Granatum resolve. Nunca preencher com palpite. |
+
+Todas em `YYYY-MM-DD`.
+
+Consequência prática: um lançamento sem `data_pagamento` aparece no DRE (regime
+competência) mas **não** no fluxo de caixa (regime caixa). Essa é a explicação
+mais comum para "o número não bate entre os dois relatórios".
+
+## Campos com sentinela zero
+
+`centro_custo_lucro_id`, `forma_pagamento_id` e `pessoa_id` aceitam `0` para
+"nenhum". O zero não aparece nas listagens correspondentes — é um valor especial,
+não um item cadastrado.
+
+**Omitir e passar zero significam coisas opostas em criar e atualizar. Não
+generalizar de um para o outro.**
+
+| Operação | Omitir o campo | Passar `0` |
+| --- | --- | --- |
+| `criar_lancamento` | fica sem vínculo | fica sem vínculo |
+| `atualizar_lancamento` | **preserva** o vínculo atual | **remove** o vínculo |
+
+Na criação os dois caminhos chegam no mesmo lugar, então a distinção não importa.
+Na atualização ela é tudo: para tirar o fornecedor de um lançamento, passar
+`pessoa_id: 0`. Omitir o campo mantém o fornecedor que já estava lá, e a
+operação retorna sucesso — o usuário acredita que limpou e não limpou.
+
+A mesma lógica vale para os demais campos de `atualizar_lancamento`: **omitir
+preserva o valor atual**. E campo enviado com o valor que já está gravado é
+tratado como não enviado: se nada difere, a ferramenta não grava. Só enviar os campos que devem mudar. `data_competencia`
+omitida, por exemplo, preserva a competência atual, ao contrário da criação, onde
+omitir deixa o Granatum resolver.
+
+Consequência prática: nunca montar um `atualizar_lancamento` reenviando o objeto
+inteiro "por segurança". Enviar só o delta confirmado com o usuário.
+
+## Campos de leitura em obter_lancamentos
+
+**Sempre presentes:** além de categoria, conta e pessoa, cada lançamento traz
+`centro_custo_lucro_id` e `centro_custo_lucro_descricao`. Sem centro de custo, o
+id vem `0` e a descrição `null`. O `0` é o mesmo valor aceito pelo filtro
+`centro_custo_lucro_ids`, então dá para copiar o id da resposta direto para a
+próxima consulta.
+
+**Sob demanda (`campos_adicionais`):** só aparecem quando pedidos. Um grupo não
+pedido não vem nem como `null`; um grupo pedido e sem valor vem explícito
+(`null`, `0` ou `[]`). A resposta confirma o que veio em
+`campos_adicionais_incluidos`. Valor fora da lista é recusado com a lista dos
+aceitos.
+
+| Grupo | Campos | Observação |
+| --- | --- | --- |
+| `tags` | `tags: [{id, descricao}]` | `[]` quando o lançamento não tem tag |
+| `forma_pagamento` | `forma_pagamento_id`, `forma_pagamento_descricao` | id `0` = nenhuma |
+| `tipo_documento` | `tipo_documento_id`, `tipo_documento_descricao` | id `0` = nenhum |
+| `parcelamento` | `grupo_id`, `numero_repeticao`, `total_repeticoes`, `periodicidade`, `infinito` | tudo `null` em lançamento avulso |
+| `identificador_externo` | `identificador_externo` | chave do sistema de origem |
+| `anexos` | `anexos: [{id, nome, tipo, tamanho_bytes}]` | `[]` sem anexo; num dividido aparece em todos os itens e numa transferência, nas duas pontas; nunca traz o link (vem de `obter_anexo`) |
+
+`periodicidade` vem como código: `DS` seg. a sex., `D1` diária, `D7` semanal,
+`D15` quinzenal, `M1` mensal, `M2` bimestral, `M3` trimestral, `M6` semestral,
+`M12` anual. Traduzir para o usuário, nunca exibir o código cru.
+`infinito: true` indica repetição sem data para acabar (assinaturas,
+mensalidades); nesse caso `total_repeticoes` não representa um fim.
+`grupo_id` identifica todas as parcelas da mesma série.
+
+## Filtro por tags
+
+`tag_ids` com ids obtidos em `listar_tags`. Tags não têm hierarquia.
+
+| Pedido | Parâmetros |
+| --- | --- |
+| com qualquer uma das tags | `tag_ids: [A, B]` (padrão `tags_modo: qualquer`) |
+| com todas as tags | `tag_ids: [A, B]`, `tags_modo: todas` |
+| sem nenhuma tag | `tag_ids: [0]` |
+| sem tag ou com a tag A | `tag_ids: [0, A]` |
+
+`[0, A]` com `tags_modo: todas` é contraditório e a API recusa. O filtro vale
+também para `totais`: o total disponível reflete só os lançamentos com as tags.
+
+## Categorias
+
+`listar_categorias` devolve a hierarquia com o caminho completo. Cada item traz
+`aceita_lancamento`.
+
+- `aceita_lancamento=true` — categoria-folha, aceita lançamento.
+- `aceita_lancamento=false` — categoria-pai, existe para agrupar. A API recusa.
+
+Ao ajudar o usuário a escolher, mostrar o caminho completo (ex.:
+`Despesas > Operacionais > Energia elétrica`), não só o nome da folha. Nomes de
+folha se repetem entre ramos diferentes.
+
+Existe categoria **mista** (aceita receita e despesa) — nela o tipo efetivo do
+lançamento vem só do `tipo_lancamento`/sinal do valor, não da categoria.
+
+Categoria não é uma trava de sinal, nem mesmo categoria exclusiva de receita ou
+de despesa. A API não valida `tipo_categoria` contra o sinal do lançamento ao
+gravar — só usa isso para exibição em relatórios. Então categoria escolhida
+certa **não garante** sinal certo: sempre confirmar o `tipo_lancamento`
+(receita/despesa) com o usuário, independente da categoria, e nunca inferir o
+tipo a partir da categoria selecionada.
+
+Isso é usado de propósito, não só um risco a evitar: para registrar um
+**estorno** ou **devolução** (ex.: cliente devolveu um valor recebido, banco
+estornou uma despesa, empréstimo concedido que voltou), lança-se um
+`tipo_lancamento` do sinal oposto **na mesma categoria** do lançamento
+original, em vez de criar ou procurar uma categoria "de estorno" separada.
+Mantém o histórico na mesma linha da DRE/fluxo de caixa e o líquido da
+categoria já sai correto. Vale confirmar com o usuário se a intenção é essa
+antes de assumir — o mesmo padrão (tipo oposto ao esperado da categoria) também
+pode ser erro de digitação.
+
+## Saldo das contas
+
+`listar_contas` sem parâmetros de saldo não traz saldo. `saldo_em` (hoje ou um
+dia passado) devolve o saldo **real** de cada conta no fim do dia: o pago até lá,
+com o saldo inicial; o em aberto não entra. Data futura é recusada. Para o saldo
+dia a dia, e para qualquer data futura, `conta_id` com `periodo_inicio` e
+`periodo_fim` (no máximo 7 dias): cada dia vem como real (até hoje) ou previsto
+(de amanhã em diante). Previsto é estimativa, não saldo confirmado: dizer isso
+ao usuário. `saldo_em` e período não se combinam; o perfil "Lançamentos por
+usuário" não tem acesso a saldo.
+
+## Períodos nos relatórios
+
+`periodo_referencia` é o **último** período da janela, não o primeiro. A janela
+se estende para trás por `quantidade_periodos`.
+
+| Periodicidade | Formato | Exemplo |
+| --- | --- | --- |
+| mensal | `YYYY-MM` | `2026-03` |
+| trimestral | `YYYY-Tn` | `2026-T1` |
+| semestral | `YYYY-Sn` | `2026-S1` |
+| anual | `YYYY` | `2026` |
+
+Omitir `periodo_referencia` usa o último período completo automaticamente. Para
+um relatório do mês corrente ainda em andamento, informar o período
+explicitamente e avisar o usuário que o mês não fechou.
+
+## Drill-down
+
+Depois de `obter_dre` ou `obter_fluxo_caixa`, o caminho para investigar uma linha
+é `obter_lancamentos` passando os `categoria_ids` que vieram em
+`principais_categorias` daquela linha.
+
+Manter o mesmo `regime` do relatório de origem. Um drill-down de DRE com
+`regime: caixa` devolve um conjunto diferente de lançamentos e a soma não vai
+fechar com a linha que originou a pergunta — o usuário vai interpretar a
+diferença como erro do sistema.
+
+Para "maiores movimentos primeiro", usar `ordenacao: valor_desc`, que ordena por
+magnitude absoluta.
+
+## Truncamento
+
+`obter_lancamentos` tem `limite` máximo de 100. Quando trunca, a resposta traz
+`total_disponivel` e `proxima_pagina` (nulo na última página). Nunca apresentar
+uma lista truncada como se fosse completa: informar quantos existem no total e
+ou seguir `proxima_pagina` (chamar com `pagina` igual a ela, com os mesmos
+filtros e a mesma ordenação; página além da última é recusada) ou sugerir um
+filtro que reduza o conjunto (período menor, categoria específica, valor
+mínimo).

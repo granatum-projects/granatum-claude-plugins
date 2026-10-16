@@ -33,7 +33,9 @@ disser "atrasados", limitar a `periodo_fim` = ontem.
 
 `obter_lancamentos` com a janela, `regime: caixa`, `ordenacao: data_asc`,
 `limite: 100` e `campos_adicionais: ["parcelamento"]`, para identificar parcelas
-("3 de 12") e cobranças recorrentes sem deduzir pela descrição. Se vier truncado, avisar o total e estreitar a janela em vez de
+("3 de 12") e cobranças recorrentes sem deduzir pela descrição. Se vier
+truncado (`total_disponivel` maior que o retornado), seguir `proxima_pagina`
+com `pagina`, mantendo filtros e ordenação, ou estreitar a janela; nunca
 apresentar lista parcial como completa.
 
 ## Apresentação
@@ -60,6 +62,8 @@ nos próximos 7 dias, de cada lado. O detalhamento vem depois.
   usuário quer ouvi-la.
 - Não sugerir que algo seja pago ou cobrado. Apresentar a situação; a decisão é
   do usuário.
-- Se o usuário quiser marcar algo como pago, isso é `atualizar_lancamento`
-  preenchendo `data_pagamento` — seguir os guardrails de escrita de
-  `granatum-fundamentos` e confirmar antes.
+- Se o usuário quiser marcar algo como pago, isso é `registrar_pagamento`
+  (`pago: true` e `data_pagamento`, que o usuário confirma; nunca presumir
+  "hoje"). Vários vencimentos de uma vez passam pela prévia. Seguir os
+  guardrails de escrita de `granatum-fundamentos` e `escrita-avancada`.
+  `atualizar_lancamento` não aceita `data_pagamento` em lançamento.

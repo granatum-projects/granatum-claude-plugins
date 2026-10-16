@@ -5,8 +5,10 @@ um relatório com resultado inesperado.
 
 ## identificador_externo
 
-Campo obrigatório em `criar_lancamento`. É a chave que o Granatum usa para
-detectar duplicata.
+Campo obrigatório em `criar_lancamento` de despesa e receita. É a chave que o
+Granatum usa para detectar duplicata. Na transferência não se informa: ela tem
+`identificador_externo_origem` e `identificador_externo_destino`, opcionais, com
+a mesma checagem de duplicata.
 
 **Quando existe chave natural** (número da nota fiscal, ID do extrato bancário,
 ID do sistema de origem): usar a chave natural crua, **sem prefixo**. Isso
@@ -54,7 +56,8 @@ Na atualização ela é tudo: para tirar o fornecedor de um lançamento, passar
 operação retorna sucesso — o usuário acredita que limpou e não limpou.
 
 A mesma lógica vale para os demais campos de `atualizar_lancamento`: **omitir
-preserva o valor atual**. Só enviar os campos que devem mudar. `data_competencia`
+preserva o valor atual**. E campo enviado com o valor que já está gravado é
+tratado como não enviado: se nada difere, a ferramenta não grava. Só enviar os campos que devem mudar. `data_competencia`
 omitida, por exemplo, preserva a competência atual, ao contrário da criação, onde
 omitir deixa o Granatum resolver.
 
@@ -82,6 +85,7 @@ aceitos.
 | `tipo_documento` | `tipo_documento_id`, `tipo_documento_descricao` | id `0` = nenhum |
 | `parcelamento` | `grupo_id`, `numero_repeticao`, `total_repeticoes`, `periodicidade`, `infinito` | tudo `null` em lançamento avulso |
 | `identificador_externo` | `identificador_externo` | chave do sistema de origem |
+| `anexos` | `anexos: [{id, nome, tipo, tamanho_bytes}]` | `[]` sem anexo; num dividido aparece em todos os itens e numa transferência, nas duas pontas; nunca traz o link (vem de `obter_anexo`) |
 
 `periodicidade` vem como código: `DS` seg. a sex., `D1` diária, `D7` semanal,
 `D15` quinzenal, `M1` mensal, `M2` bimestral, `M3` trimestral, `M6` semestral,
@@ -136,6 +140,17 @@ categoria já sai correto. Vale confirmar com o usuário se a intenção é essa
 antes de assumir — o mesmo padrão (tipo oposto ao esperado da categoria) também
 pode ser erro de digitação.
 
+## Saldo das contas
+
+`listar_contas` sem parâmetros de saldo não traz saldo. `saldo_em` (hoje ou um
+dia passado) devolve o saldo **real** de cada conta no fim do dia: o pago até lá,
+com o saldo inicial; o em aberto não entra. Data futura é recusada. Para o saldo
+dia a dia, e para qualquer data futura, `conta_id` com `periodo_inicio` e
+`periodo_fim` (no máximo 7 dias): cada dia vem como real (até hoje) ou previsto
+(de amanhã em diante). Previsto é estimativa, não saldo confirmado: dizer isso
+ao usuário. `saldo_em` e período não se combinam; o perfil "Lançamentos por
+usuário" não tem acesso a saldo.
+
 ## Períodos nos relatórios
 
 `periodo_referencia` é o **último** período da janela, não o primeiro. A janela
@@ -169,6 +184,9 @@ magnitude absoluta.
 ## Truncamento
 
 `obter_lancamentos` tem `limite` máximo de 100. Quando trunca, a resposta traz
-`total_disponivel`. Nunca apresentar uma lista truncada como se fosse completa:
-informar quantos existem no total e sugerir um filtro que reduza o conjunto
-(período menor, categoria específica, valor mínimo).
+`total_disponivel` e `proxima_pagina` (nulo na última página). Nunca apresentar
+uma lista truncada como se fosse completa: informar quantos existem no total e
+ou seguir `proxima_pagina` (chamar com `pagina` igual a ela, com os mesmos
+filtros e a mesma ordenação; página além da última é recusada) ou sugerir um
+filtro que reduza o conjunto (período menor, categoria específica, valor
+mínimo).

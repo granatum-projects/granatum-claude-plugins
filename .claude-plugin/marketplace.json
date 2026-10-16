@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Plugins oficiais do Granatum para o Claude Code.",
-    "version": "1.1.2"
+    "version": "1.2.5"
   },
   "plugins": [
     {
       "name": "granatum-financeiro",
       "displayName": "Granatum Financeiro",
       "source": "./plugins/granatum-financeiro",
-      "description": "Assistente financeiro conectado ao Granatum: DRE, fluxo de caixa, consulta e criacao de lancamentos com confirmacao obrigatoria.",
+      "description": "Assistente financeiro conectado ao Granatum: DRE, fluxo de caixa, consulta, criacao, alteracao, exclusao e pagamento de lancamentos com confirmacao obrigatoria.",
       "category": "productivity",
       "keywords": [
         "granatum",
