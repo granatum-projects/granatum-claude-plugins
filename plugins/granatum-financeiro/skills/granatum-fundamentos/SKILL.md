@@ -135,6 +135,31 @@ O id de um item de lançamento dividido exclui o lançamento **inteiro**, sempre
 depois da prévia; para tirar só um item, `itens_remover` em
 `atualizar_lancamento`.
 
+**Período fechado (datas de bloqueio):**
+
+A empresa tem duas datas de bloqueio, a de **caixa** (pela data de pagamento) e a
+de **competência**. Até a data, o período está fechado: nada entra, nada sai e
+nada que entra no cálculo muda. Quem define a data é o administrador, na
+interface do Granatum; nenhuma ferramenta a altera.
+
+- **Competência fechada:** valor, competência, tipo, categoria, centro, pessoa,
+  tags, descrição, observação, itens do dividido e exclusão não mudam, no
+  lançamento inteiro. O **vencimento é livre**, e o anexo também.
+- **Caixa fechado:** lançamento pago com data de pagamento até a data não muda
+  nada (nem o vencimento), não se estorna, não troca a data e não se exclui.
+- **Juros, multa e desconto** na baixa de lançamento de competência fechada: o
+  valor dele não muda; a diferença vira **lançamento próprio**, pago na data do
+  pagamento, e a resposta traz `lancamentos_da_diferenca`. Mostre os dois
+  lançamentos ao usuário. Pagar menos exige `desconto: true`, e `gerar_restante`
+  é recusado: ofereça só o valor cheio ou o desconto. Detalhe em
+  `escrita-avancada`.
+- **Quando a trava recusa**, a resposta traz a frase pronta (em `erro`, no começo
+  de `hint_for_llm` e, por campo, em `erros`), por exemplo "Competência fechada até
+  30/09: valor, competência e classificação deste lançamento não mudam." Repasse
+  a frase ao usuário e pare. **Não** contorne mudando a data, apagando e
+  recriando ou trocando de ferramenta; o que se oferece é o que a trava deixa
+  livre (o vencimento, o anexo, o desconto no lugar do restante).
+
 **Escopo de escrita ausente:**
 
 Se uma ferramenta de escrita retornar código `-32002` com `escopo_insuficiente`,

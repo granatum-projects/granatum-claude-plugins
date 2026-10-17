@@ -67,3 +67,6 @@ nos próximos 7 dias, de cada lado. O detalhamento vem depois.
   "hoje"). Vários vencimentos de uma vez passam pela prévia. Seguir os
   guardrails de escrita de `granatum-fundamentos.md` e `escrita-avancada.md`.
   `atualizar_lancamento` não aceita `data_pagamento` em lançamento.
+  Se a baixa for recusada por período fechado, repasse a frase da resposta e não
+  contorne; em competência fechada, juros e desconto viram lançamento próprio e
+  o restante (`gerar_restante`) é recusado.

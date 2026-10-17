@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Plugins oficiais do Granatum para o Claude Code.",
-    "version": "1.2.5"
+    "version": "1.2.6"
   },
   "plugins": [
     {

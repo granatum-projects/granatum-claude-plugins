@@ -82,10 +82,11 @@ Com um id e sem série não há prévia, exceto na exclusão de lançamento divi
 ### Quando algum id é impedido
 
 Com vários ids, todo id pedido é alvo. Se algum está impedido pelo estado
-(conciliado, pago em período bloqueado, saldo inicial, cobrança ou NFS-e
+(conciliado, pago até a data de bloqueio de caixa, com competência até a de
+competência, saldo inicial, cobrança ou NFS-e
 agendada, fatura de cartão, transferência com ponta impedida), **nada** é
 alterado ou excluído: a prévia traz `impedidos` (cada id com `codigo` e
-`descricao`) e diz que nada será feito enquanto eles estiverem no pedido.
+`descricao`; nos de período fechado, também `mensagem`, a frase da trava) e diz que nada será feito enquanto eles estiverem no pedido.
 Confirmar com eles no pedido devolve erro e não grava.
 
 Mostre a lista ao usuário. Se ele quiser seguir com o restante, refaça a chamada
@@ -153,7 +154,7 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
   `pulados`; só saem com `excluir_pagos: true`, que o usuário precisa pedir.
 - **Transferência**: o id de qualquer ponta serve, e excluir uma exclui as
   duas.
-- Se a resposta vier `nao_excluido` (conciliado, período bloqueado, saldo
+- Se a resposta vier `nao_excluido` (conciliado, pago no caixa fechado, competência fechada, saldo
   inicial), nada foi excluído; repasse o motivo.
 
 ## Transferência entre contas
@@ -177,7 +178,9 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
 - Editar: `atualizar_lancamento` com o id de qualquer ponta; vale para as duas.
   `data_vencimento` muda só o vencimento e **não** baixa nem reabre; para dar
   baixa, `data_pagamento`, e `""` reabre. Ponta conciliada não muda valor,
-  conta nem data de pagamento.
+  conta nem data de pagamento. Com a competência até a data de bloqueio de
+  competência ela também não muda (valor, contas, descrição, competência), mas
+  o vencimento passa; paga até a data de bloqueio de caixa, não muda nada.
 - Pagar ou estornar uma transferência não é por `registrar_pagamento` (recusa).
 
 ## Repetição e dividido na criação
@@ -206,6 +209,9 @@ Dar baixa, trocar a data, pagar valor diferente, estornar, e tudo de anexos:
 - Pagar menos que o valor: pergunte se a diferença é desconto ou saldo a pagar
   depois.
 - Estorno: não afirme que o valor voltou ao que era antes da baixa.
+- Competência fechada: juros, multa e desconto viram lançamento próprio; nunca
+  ofereça o restante (`gerar_restante` é recusado). Veja a referência.
+- Trava de período fechado: repasse a frase da recusa e não contorne.
 - Anexo: só diga que anexou depois que a confirmação devolver `anexado`.
 
 ## Erros que não se resolvem ajustando dados
