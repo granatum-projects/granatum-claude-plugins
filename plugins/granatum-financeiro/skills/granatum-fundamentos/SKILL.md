@@ -93,6 +93,13 @@ transferência, pagamento e anexos têm o detalhe na skill `escrita-avancada`.
   a evitar. Detalhes em `references/regras-de-campo.md`.
 - Validar a conta: usar `listar_contas` com `apenas_para_lancamento=true`.
 
+**Antes de `atualizar_lancamento`:**
+
+- Mesmo com um id só e todos os campos no pedido, mostrar o que muda (campo:
+  de → para) e **esperar confirmação explícita do usuário** antes de chamar.
+  Nunca editar direto a partir do primeiro pedido. Vale também para a troca só
+  do vencimento.
+
 **Duplicatas:**
 
 Se a resposta vier com status `confirmacao_necessaria`, apresentar os
