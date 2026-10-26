@@ -9,9 +9,10 @@ Conciliar é ligar um movimento do extrato bancário a um lançamento do Granatu
 
 ## O que não se negocia
 
-1. **Nunca confirme sem mostrar a prévia.** `conciliar` e `desconciliar` sem `confirmado: true` não gravam e devolvem `confirmacao_necessaria`. Mostre a contagem e o que cada ação faz, espere o "sim" do usuário e só então repita **os mesmos pares** com `confirmado: true`. Nunca autoconfirme. Se o pedido mudar (um par a menos, outro lançamento), é prévia nova, e ela também se mostra antes de confirmar.
-2. **Nunca promova "Revisar" a claro.** Quem diz o que é claro é o servidor (`grau: "confiavel"`). Você não reclassifica: movimento em `revisar` ou `sem_sugestao` só é conciliado depois de o usuário escolher o lançamento.
-3. **Nunca contorne o bloqueio.** Movimento com `bloqueio` não se concilia à força: não troque datas, não apague e recrie o lançamento, não mude a conta para fugir da trava. Mostre o motivo e as opções que a resposta traz.
+1. **Um "sim" só, e ele é a resposta à prévia.** `conciliar` e `desconciliar` sem `confirmado: true` não gravam e devolvem `confirmacao_necessaria`. O pedido do usuário para conciliar ("pode conciliar") autoriza **só a prévia**. Mostre a contagem e o que cada ação faz e **termine a resposta ali**, perguntando "concilio estes 12?". Só repita **os mesmos pares** com `confirmado: true` na resposta seguinte a uma mensagem do usuário que veio **depois** da prévia e a aceita. "Pode", "sim" ou "confirma" ditos **antes** da prévia (inclusive à contagem das claras) nunca valem como confirmação. **Nunca chame `conciliar` (ou `desconciliar`) duas vezes na mesma resposta**: a prévia e o `confirmado: true` ficam em respostas diferentes. Nunca autoconfirme. Se o pedido mudar (um par a menos, outro lançamento), é prévia nova, e ela também se mostra, com o fim da resposta, antes de confirmar.
+2. **Passe `wgi_conta_id` (a empresa) em toda chamada** de `obter_conciliacoes_pendentes`, `conciliar` e `desconciliar`, prévia e confirmação. Sem ele a tool recusa.
+3. **Nunca promova "Revisar" a claro.** Quem diz o que é claro é o servidor (`grau: "confiavel"`). Você não reclassifica: movimento em `revisar` ou `sem_sugestao` só é conciliado depois de o usuário escolher o lançamento.
+4. **Nunca contorne o bloqueio.** Movimento com `bloqueio` não se concilia à força: não troque datas, não apague e recrie o lançamento, não mude a conta para fugir da trava. Mostre o motivo e as opções que a resposta traz, **com as palavras do servidor** (`motivo`/`bloqueio`): não suponha nem acrescente causa que ele não disse.
 
 ## Quem pode
 
@@ -34,11 +35,11 @@ Chame de novo com `conta_id`, `periodo_inicio` e `periodo_fim` (no máximo 92 di
 
 A lista é paginada: siga `proxima_pagina` mantendo filtros e `ordenacao` (veja `truncado` e `total_disponivel`). O filtro `grau` ajuda a separar os grupos. Valor positivo é entrada, negativo é saída.
 
-### 3. As claras: contar e pedir o "sim"
+### 3. As claras: contar, mostrar a prévia e só então o "sim"
 
-As claras são os movimentos com `grau: "confiavel"` (filtro `grau: "confiavel"`; o bloqueado nunca entra aqui). Diga a quantidade e peça a decisão: **"38 claras, confirma?"** Mostre uma amostra se o usuário quiser ver. Só com o "sim" chame `conciliar` com os pares `{movimento_id, lancamento_id}`, usando o **primeiro candidato** de cada movimento claro, de até 100 em 100 (divida em chamadas se passar de 100).
+As claras são os movimentos com `grau: "confiavel"` (filtro `grau: "confiavel"`; o bloqueado nunca entra aqui). Diga a quantidade: **"38 claras."** A contagem só informa; ela não é uma pergunta de confirmação, e um "sim" a ela não grava nada. Mostre uma amostra se o usuário quiser ver.
 
-A primeira chamada é a prévia. Mostre ao usuário a contagem e o que as ações fazem:
+Quando o usuário pedir para conciliar ("pode conciliar as claras"), isso autoriza **só a prévia**: chame `conciliar` **sem `confirmado`**, com os pares `{movimento_id, lancamento_id}`, usando o **primeiro candidato** de cada movimento claro, de até 100 em 100 (divida em chamadas se passar de 100). Mostre ao usuário a contagem e o que as ações fazem, **termine a resposta ali** e pergunte **"concilio estes 38?"**:
 
 | `acao` | O que acontece no lançamento |
 |---|---|
@@ -48,11 +49,13 @@ A primeira chamada é a prévia. Mostre ao usuário a contagem e o que as açõe
 | `mudar_conta` | Já pago em outra conta: passa para a conta do extrato |
 | `mudar_data_do_pagamento_e_conta` | As duas coisas |
 
-Depois do "sim", repita o pedido com `confirmado: true` e informe quantos foram conciliados (`conciliados`) e o que mudou.
+Só quando o usuário responder a essa prévia, numa mensagem nova, aceitando, repita o pedido com `confirmado: true` (na resposta seguinte, nunca na mesma da prévia) e informe quantos foram conciliados (`conciliados`) e o que mudou. Se ele pedir outra coisa em vez de aceitar (menos um par, outro lançamento), é prévia nova.
+
+Errado: "Pode conciliar as claras." → `conciliar` sem `confirmado` e, na mesma resposta, `conciliar` com `confirmado: true`. Certo: prévia e fim da resposta; "Sim." → `confirmado: true`.
 
 ### 4. As bloqueadas: mostrar as opções
 
-Movimento com `bloqueio` é o que o servidor sabe que seria recusado, em geral porque o **caixa está fechado** (a data de bloqueio de caixa da empresa, `caixa_bloqueado_ate`): a baixa, ou a mudança de data ou de conta, cairia no período fechado. Mostre o `motivo` e as opções, com as palavras do usuário:
+Movimento com `bloqueio` é o que o servidor sabe que seria recusado. Repita o `motivo` que ele deu, sem supor outra causa (quando o motivo é o caixa fechado, vem a data `caixa_bloqueado_ate`). Mostre o `motivo` e as opções, com as palavras do usuário:
 
 1. **Voltar a data de bloqueio** (`voltar_data_de_bloqueio`): quem tem permissão ajusta a data de bloqueio de caixa na tela do Granatum; depois pede-se a conciliação de novo. O MCP não muda essa data.
 2. **Deixar pendente** (`deixar_pendente`).
@@ -62,7 +65,7 @@ Movimento **importado por CSV** também vem com bloqueio (`conciliar_na_tela`, s
 
 ### 5. As de "Revisar": o usuário escolhe
 
-Para cada movimento em `revisar` (sem bloqueio), mostre o movimento (data, descrição, valor), o `motivo` e os candidatos (descrição, pessoa, datas, conta, `acao`), e peça a escolha. Os motivos mais comuns: mais de um lançamento com o mesmo valor, lançamento de **outra conta** (conciliar o move para a conta do extrato) ou um lançamento de valor parecido que vence mais perto da data. Com o lançamento escolhido, concilie como em 3, com prévia e "sim". Nunca escolha por ele.
+Para cada movimento em `revisar` (sem bloqueio), mostre o movimento (data, descrição, valor), o `motivo` e os candidatos (descrição, pessoa, datas, conta, `acao`), e peça a escolha. Os motivos mais comuns: mais de um lançamento com o mesmo valor, lançamento de **outra conta** (conciliar o move para a conta do extrato) ou um lançamento de valor parecido que vence mais perto da data. Com o lançamento escolhido, concilie como em 3: prévia, fim da resposta e o "sim" do usuário à prévia. Nunca escolha por ele.
 
 ### 6. As sem sugestão
 
@@ -70,11 +73,11 @@ Para cada movimento em `revisar` (sem bloqueio), mostre o movimento (data, descr
 
 ### 7. Quando o pedido é recusado (409)
 
-Se algum par estiver impedido, o pedido **inteiro** é recusado e **nada é gravado**. A resposta vem com `status: "erro"`, `codigo: "alvos_impedidos"` e `impedidos`, cada um com o `movimento_id`, o `lancamento_id` e o motivo (caixa fechado, movimento ou lançamento já conciliado, par que deixou de valer, movimento de CSV, id inexistente). Isso costuma ser algo que mudou entre a leitura e o "sim". Conte ao usuário: **"2 mudaram desde a consulta: (motivos). Concilio as outras 36?"** Com o "sim", repita **sem os impedidos**, mostre a prévia nova e confirme só depois do "sim" dela. Não retente o mesmo pedido nem tente contornar o impedimento.
+Se algum par estiver impedido, o pedido **inteiro** é recusado e **nada é gravado**. A resposta vem com `status: "erro"`, `codigo: "alvos_impedidos"` e `impedidos`, cada um com o `movimento_id`, o `lancamento_id` e o motivo (caixa fechado, movimento ou lançamento já conciliado, par que deixou de valer, movimento de CSV, id inexistente). Isso costuma ser algo que mudou entre a leitura e a confirmação. Conte ao usuário, com os motivos que o servidor deu: **"2 mudaram desde a consulta: (motivos). Concilio as outras 36?"** Essa pergunta autoriza só a prévia: com a resposta dele, repita **sem os impedidos e sem `confirmado`**, mostre a prévia nova, **termine a resposta ali** e confirme só na resposta seguinte a um "sim" dado **depois** dessa prévia. Não retente o mesmo pedido nem tente contornar o impedimento.
 
 ### 8. Desconciliar
 
-Para desfazer, use `desconciliar` com os `movimento_ids` (até 100), com a mesma prévia e o mesmo "sim". Explique o que a prévia diz de cada um:
+Para desfazer, use `desconciliar` com os `movimento_ids` (até 100), com a mesma regra: prévia (sem `confirmado`), fim da resposta e `confirmado: true` só depois do "sim" do usuário a ela. Explique o que a prévia diz de cada um:
 
 - **Com o estado de antes da conciliação (snapshot):** o lançamento volta pelo que era antes: a data de pagamento (se era em aberto, volta a em aberto), o vencimento e o valor. O já pago e conciliado no mesmo dia volta igual.
 - **Sem snapshot (conciliação antiga):** só o vínculo sai. **O lançamento continua pago**, e reabrir é o estorno (`registrar_pagamento` com `pago: false`), que é outro pedido, com o próprio "sim".
@@ -97,6 +100,10 @@ O MCP não faz, e você encaminha o usuário à tela de conciliação do Granatu
 ## Antipadrões
 
 - Não confirme por conta própria, nem na primeira chamada de `conciliar` ou `desconciliar`.
+- Não trate o "pode" do pedido, nem o "sim" à contagem, como confirmação: o "sim" que vale é o da prévia, dado depois dela.
+- Não chame `conciliar` nem `desconciliar` duas vezes na mesma resposta (prévia e confirmação).
+- Não omita `wgi_conta_id` em nenhuma das três tools.
+- Não suponha o motivo de um bloqueio ("deve ser caixa fechado"): repita o `motivo` que o servidor deu.
 - Não conte como "claras" mais do que o servidor marcou `confiavel`, e não some as bloqueadas nelas.
 - Não escolha o lançamento de um movimento em `revisar` ou `sem_sugestao`.
 - Não suponha, ao reler, que as páginas acabaram: siga `proxima_pagina`.
