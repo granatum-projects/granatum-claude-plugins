@@ -1,6 +1,6 @@
 ---
 name: conciliacao
-description: Esta skill deve ser usada quando o usuário pedir para conciliar o extrato bancário ou perguntar pelas conciliações pendentes: "o que tenho pendente de conciliação", "concilia o extrato", "quais movimentos do banco faltam conciliar", "concilia as que estão claras", "desfaz essa conciliação", "desconcilia" — qualquer pedido de ligar movimentos do extrato a lançamentos do Granatum ou de desfazer essa ligação.
+description: Esta skill deve ser usada quando o usuário pedir para conciliar o extrato bancário ou perguntar pelas conciliações pendentes: "o que tenho pendente de conciliação", "concilia o extrato", "quais movimentos do banco faltam conciliar", "concilia as confiáveis", "desfaz essa conciliação", "desconcilia" — qualquer pedido de ligar movimentos do extrato a lançamentos do Granatum ou de desfazer essa ligação.
 ---
 
 # Conciliação bancária
@@ -9,9 +9,9 @@ Conciliar é ligar um movimento do extrato bancário a um lançamento do Granatu
 
 ## O que não se negocia
 
-1. **Um "sim" só, e ele é a resposta à prévia.** `conciliar` e `desconciliar` sem `confirmado: true` não gravam e devolvem `confirmacao_necessaria`. O pedido do usuário para conciliar ("pode conciliar") autoriza **só a prévia**. Mostre a contagem e o que cada ação faz e **termine a resposta ali**, perguntando "concilio estes 12?". Só repita **os mesmos pares** com `confirmado: true` na resposta seguinte a uma mensagem do usuário que veio **depois** da prévia e a aceita. "Pode", "sim" ou "confirma" ditos **antes** da prévia (inclusive à contagem das claras) nunca valem como confirmação. **Nunca chame `conciliar` (ou `desconciliar`) duas vezes na mesma resposta**: a prévia e o `confirmado: true` ficam em respostas diferentes. Nunca autoconfirme. Se o pedido mudar (um par a menos, outro lançamento), é prévia nova, e ela também se mostra, com o fim da resposta, antes de confirmar.
+1. **Um "sim" só, e ele é a resposta à prévia.** `conciliar` e `desconciliar` sem `confirmado: true` não gravam e devolvem `confirmacao_necessaria`. O pedido do usuário para conciliar ("pode conciliar") autoriza **só a prévia**. Mostre a contagem e o que cada ação faz e **termine a resposta ali**, perguntando "concilio estes 12?". Só repita **os mesmos pares** com `confirmado: true` na resposta seguinte a uma mensagem do usuário que veio **depois** da prévia e a aceita. "Pode", "sim" ou "confirma" ditos **antes** da prévia (inclusive à contagem das confiáveis) nunca valem como confirmação. **Nunca chame `conciliar` (ou `desconciliar`) duas vezes na mesma resposta**: a prévia e o `confirmado: true` ficam em respostas diferentes. Nunca autoconfirme. Se o pedido mudar (um par a menos, outro lançamento), é prévia nova, e ela também se mostra, com o fim da resposta, antes de confirmar.
 2. **Passe `wgi_conta_id` (a empresa) em toda chamada** de `obter_conciliacoes_pendentes`, `conciliar` e `desconciliar`, prévia e confirmação. Sem ele a tool recusa.
-3. **Nunca promova "Revisar" a claro.** Quem diz o que é claro é o servidor (`grau: "confiavel"`). Você não reclassifica: movimento em `revisar` ou `sem_sugestao` só é conciliado depois de o usuário escolher o lançamento.
+3. **Nunca promova "Revisar" a confiável.** Quem diz o que é confiável é o servidor (`grau: "confiavel"`). Você não reclassifica: movimento em `revisar` ou `sem_sugestao` só é conciliado depois de o usuário escolher o lançamento.
 4. **Nunca contorne o bloqueio.** Movimento com `bloqueio` não se concilia à força: não troque datas, não apague e recrie o lançamento, não mude a conta para fugir da trava. Mostre o motivo e as opções que a resposta traz, **com as palavras do servidor** (`motivo`/`bloqueio`): não suponha nem acrescente causa que ele não disse.
 
 ## Quem pode
@@ -35,23 +35,23 @@ Chame de novo com `conta_id`, `periodo_inicio` e `periodo_fim` (no máximo 92 di
 
 A lista é paginada: siga `proxima_pagina` mantendo filtros e `ordenacao` (veja `truncado` e `total_disponivel`). O filtro `grau` ajuda a separar os grupos. Valor positivo é entrada, negativo é saída.
 
-### 3. As claras: contar, mostrar a prévia e só então o "sim"
+### 3. As confiáveis: contar, mostrar a prévia e só então o "sim"
 
-As claras são os movimentos com `grau: "confiavel"` (filtro `grau: "confiavel"`; o bloqueado nunca entra aqui). Diga a quantidade: **"38 claras."** A contagem só informa; ela não é uma pergunta de confirmação, e um "sim" a ela não grava nada. Mostre uma amostra se o usuário quiser ver.
+As confiáveis são os movimentos com `grau: "confiavel"` (filtro `grau: "confiavel"`; o bloqueado nunca entra aqui). Diga a quantidade: **"38 confiáveis."** A contagem só informa; ela não é uma pergunta de confirmação, e um "sim" a ela não grava nada. Pergunte, por exemplo, **"12 confiáveis, concilio?"**. Mostre uma amostra se o usuário quiser ver.
 
-Quando o usuário pedir para conciliar ("pode conciliar as claras"), isso autoriza **só a prévia**: chame `conciliar` **sem `confirmado`**, com os pares `{movimento_id, lancamento_id}`, usando o **primeiro candidato** de cada movimento claro, de até 100 em 100 (divida em chamadas se passar de 100). Mostre ao usuário a contagem e o que as ações fazem, **termine a resposta ali** e pergunte **"concilio estes 38?"**:
+Quando o usuário pedir para conciliar ("pode conciliar as confiáveis"), isso autoriza **só a prévia**: chame `conciliar` **sem `confirmado`**, com os pares `{movimento_id, lancamento_id}`, usando o **primeiro candidato** de cada movimento confiável, de até 100 em 100 (divida em chamadas se passar de 100). Mostre ao usuário a contagem e o que as ações fazem, **termine a resposta ali** e pergunte **"concilio estes 38?"**:
 
 | `acao` | O que acontece no lançamento |
 |---|---|
 | `vincular` | Só liga ao movimento; o lançamento já estava pago no mesmo dia e na mesma conta e não muda |
-| `baixar` | Lançamento em aberto recebe a baixa com a data do movimento e a conta do extrato |
+| `baixar` | Lançamento em aberto recebe a baixa com a data do movimento e a conta do extrato. Se o lançamento é de **outra conta** (`conta_antes_id` diferente de `conta_depois_id` na prévia), diga ao usuário que a baixa leva o lançamento para a conta do extrato |
 | `mudar_data_do_pagamento` | Já pago em outra data: a data do pagamento passa a ser a do movimento |
 | `mudar_conta` | Já pago em outra conta: passa para a conta do extrato |
 | `mudar_data_do_pagamento_e_conta` | As duas coisas |
 
 Só quando o usuário responder a essa prévia, numa mensagem nova, aceitando, repita o pedido com `confirmado: true` (na resposta seguinte, nunca na mesma da prévia) e informe quantos foram conciliados (`conciliados`) e o que mudou. Se ele pedir outra coisa em vez de aceitar (menos um par, outro lançamento), é prévia nova.
 
-Errado: "Pode conciliar as claras." → `conciliar` sem `confirmado` e, na mesma resposta, `conciliar` com `confirmado: true`. Certo: prévia e fim da resposta; "Sim." → `confirmado: true`.
+Errado: "Pode conciliar as confiáveis." → `conciliar` sem `confirmado` e, na mesma resposta, `conciliar` com `confirmado: true`. Certo: prévia e fim da resposta; "Sim." → `confirmado: true`.
 
 ### 4. As bloqueadas: mostrar as opções
 
@@ -65,11 +65,11 @@ Movimento **importado por CSV** também vem com bloqueio (`conciliar_na_tela`, s
 
 ### 5. As de "Revisar": o usuário escolhe
 
-Para cada movimento em `revisar` (sem bloqueio), mostre o movimento (data, descrição, valor), o `motivo` e os candidatos (descrição, pessoa, datas, conta, `acao`), e peça a escolha. Os motivos mais comuns: mais de um lançamento com o mesmo valor, lançamento de **outra conta** (conciliar o move para a conta do extrato) ou um lançamento de valor parecido que vence mais perto da data. Com o lançamento escolhido, concilie como em 3: prévia, fim da resposta e o "sim" do usuário à prévia. Nunca escolha por ele.
+Para cada movimento em `revisar` (sem bloqueio), **antes de qualquer chamada de `conciliar`** (nem a prévia), mostre o movimento (data, descrição, valor), o `motivo` e os candidatos (descrição, pessoa, datas, conta, `acao`), e peça a escolha; só depois da escolha chame a prévia. Os motivos mais comuns: mais de um lançamento com o mesmo valor, lançamento de **outra conta** (conciliar o move para a conta do extrato) ou um lançamento de valor parecido que vence mais perto da data. Com o lançamento escolhido pelo usuário, concilie como em 3: prévia, fim da resposta e o "sim" do usuário à prévia. Nunca escolha por ele.
 
 ### 6. As sem sugestão
 
-`sem_sugestao` quer dizer que não há lançamento sem vínculo, do mesmo sinal e com o valor exato, dentro da janela (em aberto com vencimento a até 30 dias, ou já pago a até 3 dias). Antes de desistir, **procure outro lançamento** com `obter_lancamentos` (por exemplo por pessoa, valor ou período mais largo): `conciliar` aceita qualquer lançamento sem vínculo, em aberto ou já pago, com o mesmo sinal e o **valor exato ao centavo**, de qualquer conta, mesmo fora da janela e mesmo que não tenha sido sugerido. Se achar, mostre ao usuário e concilie com prévia. Se não achar, diga que o movimento fica para a tela do Granatum (criar o lançamento a partir do movimento é de lá).
+`sem_sugestao` quer dizer que não há lançamento sem vínculo, do mesmo sinal e com o valor exato, dentro da janela (em aberto com vencimento a até 30 dias, ou já pago a até 3 dias). **Sempre tente `obter_lancamentos`** antes de dizer que o movimento fica para a tela, procurando pela data e pelo valor do movimento (e, se preciso, por pessoa ou período mais largo): `conciliar` aceita qualquer lançamento sem vínculo, em aberto ou já pago, com o mesmo sinal e o **valor exato ao centavo**, de qualquer conta, mesmo fora da janela e mesmo que não tenha sido sugerido. Se achar, mostre ao usuário e concilie com prévia. Se não achar, diga que o movimento fica para a tela do Granatum (criar o lançamento a partir do movimento é de lá).
 
 ### 7. Quando o pedido é recusado (409)
 
@@ -77,7 +77,7 @@ Se algum par estiver impedido, o pedido **inteiro** é recusado e **nada é grav
 
 ### 8. Desconciliar
 
-Para desfazer, use `desconciliar` com os `movimento_ids` (até 100), com a mesma regra: prévia (sem `confirmado`), fim da resposta e `confirmado: true` só depois do "sim" do usuário a ela. Explique o que a prévia diz de cada um:
+Para desfazer, use `desconciliar` com `movimento_ids` ou, **quando o usuário falar do lançamento** ("desfaz a conciliação daquele pagamento de 678,78"), com `lancamento_ids` (até 100; um ou outro, nunca os dois; cada lançamento resolve para o movimento do seu vínculo ativo, e o lançamento que não está conciliado volta como impedido, "o lançamento não está conciliado"). Ache os ids com `obter_lancamentos`. Vale a mesma regra: prévia (sem `confirmado`), fim da resposta e `confirmado: true` só depois do "sim" do usuário a ela. Explique o que a prévia diz de cada um:
 
 - **Com o estado de antes da conciliação (snapshot):** o lançamento volta pelo que era antes: a data de pagamento (se era em aberto, volta a em aberto), o vencimento e o valor. O já pago e conciliado no mesmo dia volta igual.
 - **Sem snapshot (conciliação antiga):** só o vínculo sai. **O lançamento continua pago**, e reabrir é o estorno (`registrar_pagamento` com `pago: false`), que é outro pedido, com o próprio "sim".
@@ -104,7 +104,9 @@ O MCP não faz, e você encaminha o usuário à tela de conciliação do Granatu
 - Não chame `conciliar` nem `desconciliar` duas vezes na mesma resposta (prévia e confirmação).
 - Não omita `wgi_conta_id` em nenhuma das três tools.
 - Não suponha o motivo de um bloqueio ("deve ser caixa fechado"): repita o `motivo` que o servidor deu.
-- Não conte como "claras" mais do que o servidor marcou `confiavel`, e não some as bloqueadas nelas.
+- Não conte como "confiáveis" mais do que o servidor marcou `confiavel`, e não some as bloqueadas nelas.
+- Não mande parâmetro opcional vazio ou zero (`conta_id: 0`, `grau: ""`, `periodo_inicio: ""`): omita-o.
+- Não vá direto à prévia de um movimento em `revisar`: mostre o candidato e peça a escolha antes.
 - Não escolha o lançamento de um movimento em `revisar` ou `sem_sugestao`.
 - Não suponha, ao reler, que as páginas acabaram: siga `proxima_pagina`.
 - Não afirme que conciliou antes da resposta dizer `status: "conciliado"` (ou `"desconciliado"`).
