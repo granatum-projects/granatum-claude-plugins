@@ -181,7 +181,10 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
   conta nem data de pagamento. Com a competência até a data de bloqueio de
   competência ela também não muda (valor, contas, descrição, competência), mas
   o vencimento passa; paga até a data de bloqueio de caixa, não muda nada.
-- Pagar ou estornar uma transferência não é por `registrar_pagamento` (recusa).
+- Efetivar, trocar a data ou estornar (`pago: false`) uma transferência é `registrar_pagamento` com o id de
+  qualquer ponta: vale para as duas, cada uma na sua conta, com um id ou com vários. Só a data:
+  `valor_pago`, `desconto`, `gerar_restante` e `conta_id` são recusados (`transferencia_so_com_data`);
+  para mudar conta ou valor, `atualizar_lancamento`.
 
 ## Repetição e dividido na criação
 
