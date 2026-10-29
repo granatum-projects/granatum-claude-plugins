@@ -44,6 +44,10 @@ resposta traz o `grupo_id` da série e a `quantidade_criada`.
 categorias, um desconto), usar `itens` em vez de `valor` e `categoria_id`; os
 detalhes estão em `escrita-avancada`.
 
+**Descrição.** Só a pontuação do português: seta (→), emojis e símbolos
+decorativos são recusados. Antes de montar o resumo, troque por texto ("de A
+para B", "-") ou avise o usuário, para a descrição gravada ser a mostrada.
+
 Aproveitar o que o usuário já disse. "Paguei 450 de energia hoje" já entrega
 tipo, valor, data de pagamento e uma pista de categoria — perguntar apenas o que
 falta, não repetir o que foi dado.

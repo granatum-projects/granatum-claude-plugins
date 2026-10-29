@@ -118,12 +118,13 @@ lançamento (vários ids, "este e os próximos" ou, em `atualizar_lancamento`, u
 mudança de `total_repeticoes`): devolvem `confirmacao_necessaria` com a prévia.
 Numa série de transferência a contagem é por parcela e cada parcela são dois
 lançamentos; repasse as duas contagens que a prévia traz. Em lançamento de
-série, sem `escopo_serie` devolvem `escopo_necessario`. Mostrar a prévia ou
+série, sem `escopo_serie` devolvem `escopo_necessario` (exceto a edição de
+parcela de série de transferência: veja a regra do escopo). Mostrar a prévia ou
 perguntar o escopo, esperar a resposta humana e só então repetir os mesmos
 argumentos com `confirmado: true` ou com o `escopo_serie` escolhido. **Nunca**
 definir `confirmado` nem escolher o escopo por conta própria.
 
-**Regra do escopo.** Nunca preencha `escopo_serie` sem que o usuário tenha dito o escopo nesta conversa. Sem isso, chame a tool **sem** o parâmetro, deixe-a devolver `escopo_necessario` e pergunte. Exemplo:
+**Regra do escopo.** Nunca preencha `escopo_serie` sem que o usuário tenha dito o escopo nesta conversa. Sem isso, chame a tool **sem** o parâmetro, deixe-a devolver `escopo_necessario` e pergunte. Exceção: na parcela de uma série de **transferência**, `atualizar_lancamento` não devolve `escopo_necessario` (sem `escopo_serie` grava só aquela parcela, como `so_este`, sem prévia); pergunte o escopo **antes** da primeira chamada e envie `escopo_serie` explícito. `excluir_lancamento` pergunta como no lançamento. Exemplo:
 
 > Usuário: "Exclui a ocorrência de 10/10 da assinatura de internet."
 > Você: chama `excluir_lancamento` sem `escopo_serie`; a tool devolve `escopo_necessario`.
