@@ -50,8 +50,9 @@ outro. Pergunte ao usuário:
 > Você: "É uma assinatura recorrente. Excluo só esta ocorrência ou esta e as próximas?"
 > Usuário: "Só esta." Agora sim, chame com `escopo_serie: "so_este"`.
 
-Em lançamento que não é de série, não envie `escopo_serie`. Vale também para a
-parcela de uma série de **transferência** (veja abaixo). `criar_lancamento` e
+**Exceção: parcela de série de transferência.** Em `atualizar_lancamento` a tool **não** devolve `escopo_necessario` nessa parcela: sem `escopo_serie` ela grava só aquela parcela, como `so_este`, sem prévia. Pergunte o escopo **antes** da primeira chamada e envie `escopo_serie` explícito. `excluir_lancamento` pergunta como no lançamento.
+
+Em lançamento que não é de série, não envie `escopo_serie`. `criar_lancamento` e
 `registrar_pagamento` não têm esse campo: pagar ou estornar mexe só na
 ocorrência pedida.
 
@@ -95,10 +96,15 @@ Com um id e sem série não há prévia, exceto na exclusão de lançamento divi
 Com vários ids, todo id pedido é alvo. Se algum está impedido pelo estado
 (conciliado, pago até a data de bloqueio de caixa, com competência até a de
 competência, saldo inicial, cobrança ou NFS-e
-agendada, fatura de cartão, transferência com ponta impedida), **nada** é
+agendada, fatura de cartão; na exclusão e no pagamento, também transferência
+com ponta impedida), **nada** é
 alterado ou excluído: a prévia traz `impedidos` (cada id com `codigo` e
 `descricao`; nos de período fechado, também `mensagem`, a frase da trava) e diz que nada será feito enquanto eles estiverem no pedido.
 Confirmar com eles no pedido devolve erro e não grava.
+
+**Transferência em `atualizar_lancamento` com vários ids** é sempre impedida,
+por ser transferência (não por uma ponta), com a mensagem de que ela se altera
+sozinha: refaça sem ela e altere a transferência num pedido à parte, com um id.
 
 Mostre a lista ao usuário. Se ele quiser seguir com o restante, refaça a chamada
 **sem** esses ids, e a prévia nova passa pela confirmação de novo. Id
@@ -234,21 +240,25 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
   com `obter_lancamentos` antes de repetir.
 - Editar: `atualizar_lancamento` com o id de qualquer ponta; vale para as duas.
   `data_vencimento` muda só o vencimento e **não** baixa nem reabre; para dar
-  baixa, `data_pagamento`, e `""` reabre. Ponta conciliada não muda valor,
+  baixa, `data_pagamento` (e `""` reabre), **mas prefira `registrar_pagamento`**
+  para a baixa (veja o último item desta lista); `data_pagamento` aqui só quando
+  a baixa vai junto de outra edição da mesma transferência. Ponta conciliada não muda valor,
   conta nem data de pagamento. Com a competência até a data de bloqueio de
   competência ela também não muda (valor, contas, descrição, competência), mas
   o vencimento passa; paga até a data de bloqueio de caixa, não muda nada.
 - **Parcela de série de transferência:** `escopo_serie` vale (o padrão é
   `so_este`, que muda só aquela parcela, e ela segue na série), e
   `este_e_proximos` leva o que mudou também às parcelas seguintes, os dois
-  lançamentos de cada uma, **com prévia e `confirmado`** (pergunte o escopo como
-  numa série de lançamento). Só o que difere da pedida propaga; o vencimento anda
+  lançamentos de cada uma, **com prévia e `confirmado`**. Atenção: aqui a tool
+  não devolve `escopo_necessario`; sem `escopo_serie` ela grava só a parcela
+  pedida. Pergunte o escopo **antes** da primeira chamada e envie `escopo_serie`
+  explícito. Só o que difere da pedida propaga; o vencimento anda
   a partir do pedido, um período por parcela; a conta de origem e a de destino
   vão cada uma para a sua ponta; a **baixa** (`data_pagamento`) e os
   identificadores externos ficam só na parcela pedida; a parcela seguinte já paga
   também muda, salvo a protegida por bloqueio, que fica como está e aparece em
   `pulados`.
-- Efetivar, trocar a data ou estornar (`pago: false`) uma transferência é `registrar_pagamento` com o id de
+- Efetivar, trocar a data ou estornar (`pago: false`) uma transferência é `registrar_pagamento` (a preferência: aceita vários ids e pedido misto) com o id de
   qualquer ponta: vale para as duas, cada uma na sua conta, com um id ou com vários. Só a data:
   `valor_pago`, `desconto`, `gerar_restante` e `conta_id` são recusados (`transferencia_so_com_data`);
   para mudar conta ou valor, `atualizar_lancamento`.
@@ -278,6 +288,11 @@ Dar baixa, trocar a data, pagar valor diferente, estornar, e tudo de anexos:
 `pagamento-e-anexos.md`. Pontos que não se negociam:
 
 - Nunca presuma "pagou hoje": confirme a data.
+- Descrição (`descricao`, e a de cada item): só a pontuação do português. A seta
+  (→), emojis e símbolos decorativos são recusados (`erro_validacao`). **Antes de
+  montar a prévia**, troque esses caracteres por texto ("de A para B", "-") ou
+  avise o usuário do que vai mudar, para a descrição gravada ser a mostrada na
+  prévia. Vale na criação (inclusive de transferência) e na edição.
 - Baixa, troca de data e transferência pedidas juntas vão numa chamada só de
   `registrar_pagamento`, com uma prévia só; com vários ids, um impedido segura o
   pedido inteiro e a lista vai ao usuário.

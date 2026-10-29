@@ -39,7 +39,7 @@ A lista é paginada: siga `proxima_pagina` mantendo filtros e `ordenacao` (veja 
 
 As confiáveis são os movimentos com `grau: "confiavel"` (filtro `grau: "confiavel"`; o bloqueado nunca entra aqui). Diga a quantidade: **"38 confiáveis."** A contagem só informa; ela não é uma pergunta de confirmação, e um "sim" a ela não grava nada. Pergunte, por exemplo, **"12 confiáveis, concilio?"**. Mostre uma amostra se o usuário quiser ver.
 
-Quando o usuário pedir para conciliar ("pode conciliar as confiáveis"), isso autoriza **só a prévia**: chame `conciliar` **sem `confirmado`**, com os pares `{movimento_id, lancamento_id}`, usando o **primeiro candidato** de cada movimento confiável, de até 100 em 100 (divida em chamadas se passar de 100). Mostre ao usuário a contagem e o que as ações fazem, **termine a resposta ali** e pergunte **"concilio estes 38?"**:
+Quando o usuário pedir para conciliar ("pode conciliar as confiáveis"), isso autoriza **só a prévia**: chame `conciliar` **sem `confirmado`**, com os pares `{movimento_id, lancamento_id}`, usando o **primeiro candidato** de cada movimento confiável, no máximo 100 pares por chamada. Com mais de 100 confiáveis, é **um lote por rodada**: prévia do 1º lote, o "sim", a confirmação, e só então a prévia do lote seguinte (nunca dois `conciliar` na mesma resposta). Mostre ao usuário a contagem e o que as ações fazem, **termine a resposta ali** e pergunte **"concilio estes 38?"**:
 
 | `acao` | O que acontece no lançamento |
 |---|---|
@@ -57,7 +57,7 @@ Errado: "Pode conciliar as confiáveis." → `conciliar` sem `confirmado` e, na 
 
 ### 4. As bloqueadas: mostrar as opções
 
-Movimento com `bloqueio` é o que o servidor sabe que seria recusado. Repita o `motivo` que ele deu, sem supor outra causa (quando o motivo é o caixa fechado, vem a data `caixa_bloqueado_ate`). Mostre o `motivo` e as opções, com as palavras do usuário:
+Movimento com `bloqueio` é o que o servidor sabe que seria recusado. Repita o `motivo` que ele deu, sem supor outra causa (quando o motivo é o caixa fechado, vem a data `caixa_bloqueado_ate`). Mostre o `motivo` e as opções, em linguagem simples, sem mudar o motivo do servidor:
 
 1. **Voltar a data de bloqueio** (`voltar_data_de_bloqueio`): quem tem permissão ajusta a data de bloqueio de caixa na tela do Granatum; depois pede-se a conciliação de novo. O MCP não muda essa data.
 2. **Deixar pendente** (`deixar_pendente`).
@@ -82,7 +82,7 @@ Se algum par estiver impedido, o pedido **inteiro** é recusado e **nada é grav
 Para desfazer, use `desconciliar` com `movimento_ids` ou, **quando o usuário falar do lançamento** ("desfaz a conciliação daquele pagamento de 678,78"), com `lancamento_ids` (até 100; um ou outro, nunca os dois; cada lançamento resolve para o movimento do seu vínculo ativo, e o lançamento que não está conciliado volta como impedido, "o lançamento não está conciliado"). Ache os ids com `obter_lancamentos`. Vale a mesma regra: prévia (sem `confirmado`), fim da resposta e `confirmado: true` só depois do "sim" do usuário a ela. Explique o que a prévia diz de cada um:
 
 - **Com o estado de antes da conciliação (snapshot):** o lançamento volta pelo que era antes: a data de pagamento (se era em aberto, volta a em aberto), o vencimento e o valor. O já pago e conciliado no mesmo dia volta igual.
-- **Sem snapshot (conciliação antiga):** só o vínculo sai. **O lançamento continua pago**, e reabrir é o estorno (`registrar_pagamento` com `pago: false`), que é outro pedido, com o próprio "sim".
+- **Sem snapshot (conciliação antiga):** só o vínculo sai. **O lançamento continua pago**, e reabrir é o estorno (`registrar_pagamento` com `pago: false`), que é outro pedido. Só informe isso ao usuário; **não ofereça** preparar o estorno nem pergunte se ele quer. Se ele pedir o estorno, aí é um pedido novo, com o próprio "sim".
 - **A conta não volta.** A resposta diz em que conta o lançamento ficou; avise o usuário.
 - O caixa fechado também vale: se a restauração mudar uma data até a data de bloqueio de caixa, o movimento é recusado, o pedido inteiro não grava, e a resposta lista o motivo de cada um; refaça sem eles, como no 409 acima.
 - Se o lançamento tem outro movimento conciliado, só aquele vínculo sai.
