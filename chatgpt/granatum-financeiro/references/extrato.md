@@ -44,6 +44,10 @@ Filtros opcionais, aplicar conforme o pedido:
 | "aquele lançamento do aluguel" | `descricao` (correspondência parcial) |
 | "maiores primeiro" | `ordenacao: valor_desc` |
 
+`categoria_ids` e `centro_custo_lucro_ids` com o id de um pai cobrem o pai e
+todos os descendentes ativos: para "gastos com Operacionais", envie o id do pai,
+sem listar as filhas, e diga ao usuário que as subcategorias entraram.
+
 O `0` em `tag_ids` significa "sem nenhuma tag" e só combina com outras tags no
 modo `qualquer` (`[0, A]` = sem tag ou com a tag A). Com `tags_modo: todas` a
 combinação é contraditória e a API recusa.

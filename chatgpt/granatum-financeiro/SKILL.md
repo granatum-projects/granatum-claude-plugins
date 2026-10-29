@@ -5,11 +5,11 @@ description: >
   financial data, including cash flow, DRE, monthly summaries, pending bills,
   entries, statements, balances, configuration, or creating, correcting,
   deleting and paying entries, including series, split entries, transfers
-  and attachments.
+  and attachments, and reconciling the bank statement.
   Apply the shared Granatum rules first, then load the reference that matches
   the requested operation.
 metadata:
-  version: "1.2.6"
+  version: "1.3.0"
 ---
 
 # Granatum Financeiro
@@ -26,8 +26,9 @@ conversation. For a specific request, read only the matching reference below.
 - Open payables and receivables: [pendencias.md](references/pendencias.md)
 - Entry search and statement: [extrato.md](references/extrato.md)
 - Creating a financial entry: [novo-lancamento.md](references/novo-lancamento.md), plus [regras-de-campo.md](references/regras-de-campo.md)
-- Advanced writes (editing or deleting existing entries, series, batch edits, tags, split entries, transfers, installments and recurrence, creating a person): [escrita-avancada.md](references/escrita-avancada.md)
-- Payment (settling, partial payment, changing or reversing a payment) and attachments: [pagamento-e-anexos.md](references/pagamento-e-anexos.md)
+- Advanced writes (editing or deleting existing entries, series and changing a series' number of installments, batch edits, tags, split entries, transfers and recurring transfers, installments and recurrence, creating a person): [escrita-avancada.md](references/escrita-avancada.md)
+- Bank reconciliation (pending statement movements, reconciling, undoing a reconciliation): [conciliacao.md](references/conciliacao.md)
+- Payment (settling, partial payment, changing or reversing a payment, including transfers and mixed requests in one call) and attachments: [pagamento-e-anexos.md](references/pagamento-e-anexos.md)
 
 Preserve the confirmation and safety requirements in the shared rules before
 performing any write operation. Read [escrita-avancada.md](references/escrita-avancada.md)

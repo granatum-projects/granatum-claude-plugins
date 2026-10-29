@@ -71,8 +71,9 @@ Escritas atingem os livros reais do cliente. Não existe modo de simulação.
 
 Valem para toda ferramenta que grava: `criar_lancamento`,
 `atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento`,
-`criar_pessoa`, `anexar_arquivo` e `excluir_anexo`. Série, prévia, dividido,
-transferência, pagamento e anexos têm o detalhe na referência `escrita-avancada.md`.
+`criar_pessoa`, `anexar_arquivo`, `excluir_anexo`, `conciliar` e `desconciliar`.
+Série, prévia, dividido, transferência, pagamento e anexos têm o detalhe na
+referência `escrita-avancada.md`; a conciliação bancária, na referência `conciliacao.md`.
 
 **Antes de `criar_lancamento`:**
 
@@ -113,7 +114,10 @@ também para a transferência, que tem um identificador por ponta.
 
 `atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento` e
 `excluir_anexo` não gravam na primeira vez quando a chamada alcança mais de um
-lançamento: devolvem `confirmacao_necessaria` com a prévia. Em lançamento de
+lançamento (vários ids, "este e os próximos" ou, em `atualizar_lancamento`, uma
+mudança de `total_repeticoes`): devolvem `confirmacao_necessaria` com a prévia.
+Numa série de transferência a contagem é por parcela e cada parcela são dois
+lançamentos; repasse as duas contagens que a prévia traz. Em lançamento de
 série, sem `escopo_serie` devolvem `escopo_necessario`. Mostrar a prévia ou
 perguntar o escopo, esperar a resposta humana e só então repetir os mesmos
 argumentos com `confirmado: true` ou com o `escopo_serie` escolhido. **Nunca**
@@ -159,7 +163,7 @@ interface do Granatum; nenhuma ferramenta a altera.
   pagamento, e a resposta traz `lancamentos_da_diferenca`. Mostre os dois
   lançamentos ao usuário. Pagar menos exige `desconto: true`, e `gerar_restante`
   é recusado: ofereça só o valor cheio ou o desconto. Detalhe em
-  `escrita-avancada`.
+  `escrita-avancada.md`.
 - **Quando a trava recusa**, a resposta traz a frase pronta (em `erro`, no começo
   de `hint_for_llm` e, por campo, em `erros`), por exemplo "Competência fechada até
   30/09: valor, competência e classificação deste lançamento não mudam." Repasse
@@ -210,7 +214,10 @@ responde com o estado atual.
   opcionais. Regras completas em `regras-de-campo.md`.
 - `data_pagamento` não se altera por `atualizar_lancamento` em lançamento: dar
   baixa, trocar a data de um pagamento e estornar é `registrar_pagamento`. Na
-  transferência, a baixa é `data_pagamento` em `atualizar_lancamento`.
+  transferência também: `registrar_pagamento` com o id de qualquer ponta efetiva, troca a data ou reabre
+  as duas, só com a data. O que o usuário pede junto (baixas, troca de data,
+  transferências) vai numa chamada só de `registrar_pagamento`, para ele ver uma
+  prévia só (detalhe em `escrita-avancada.md`).
 - Data de entrada com ano fora de 1600 a 9999 é recusada.
 
 ## Como apresentar números

@@ -35,7 +35,10 @@ quando ela não diz.
 Em `atualizar_lancamento`, `excluir_lancamento`, `anexar_arquivo` e
 `excluir_anexo`, um lançamento de série sem `escopo_serie` **não grava**: a
 ferramenta devolve `status: "escopo_necessario"` com o tamanho da série
-(`tamanho_da_serie`, ou `serie_sem_fim`) e a posição. Pergunte ao usuário:
+(`tamanho_da_serie`, que conta as parcelas **vivas**, ou `serie_sem_fim`) e a
+posição. Quando vier também `total_gravado`, o total gravado é outro (excluir
+parcela não o desce): diga os dois números ao usuário, sem tratar um como o
+outro. Pergunte ao usuário:
 
 - só esta ocorrência, as outras ficam como estão;
 - esta e as seguintes.
@@ -47,16 +50,24 @@ ferramenta devolve `status: "escopo_necessario"` com o tamanho da série
 > Você: "É uma assinatura recorrente. Excluo só esta ocorrência ou esta e as próximas?"
 > Usuário: "Só esta." Agora sim, chame com `escopo_serie: "so_este"`.
 
-Em lançamento que não é de série, não envie `escopo_serie`. `criar_lancamento`
-e `registrar_pagamento` não têm esse campo: pagar ou estornar mexe só na
+Em lançamento que não é de série, não envie `escopo_serie`. Vale também para a
+parcela de uma série de **transferência** (veja abaixo). `criar_lancamento` e
+`registrar_pagamento` não têm esse campo: pagar ou estornar mexe só na
 ocorrência pedida.
 
 ## Prévia e confirmação
 
-Toda chamada que alcança mais de um lançamento (vários `lancamento_ids`, ou
-`escopo_serie: "este_e_proximos"`) **não grava na primeira vez**. Devolve
-`status: "confirmacao_necessaria"` com a quantidade, quantos já estão pagos
-(`ja_pagos`) e os pulados com o motivo.
+Toda chamada que alcança mais de um lançamento (vários `lancamento_ids`,
+`escopo_serie: "este_e_proximos"` ou `total_repeticoes`) **não grava na primeira
+vez**. Devolve `status: "confirmacao_necessaria"` com a quantidade, quantos já
+estão pagos (`ja_pagos`) e os pulados com o motivo.
+
+**A quantidade conta por parcela.** Numa série de transferência cada parcela é
+uma transferência, que são **dois lançamentos** (as duas pontas). A prévia traz
+`quantidade_de_transferencias_a_alterar` (ou `_a_excluir`) e
+`quantidade_de_lancamentos_a_alterar` (ou `_a_excluir`), e a dica diz, por
+exemplo, "2 transferência(s) (4 lançamentos)". Repasse as duas contagens, para o
+usuário não ler 4 lançamentos como 4 transferências.
 
 1. Mostre a prévia ao usuário em linguagem direta: quantos serão alterados ou
    excluídos, quantos já estão pagos, o que fica de fora e por quê.
@@ -139,6 +150,40 @@ Um dividido tem itens, e cada item é um lançamento com id próprio (os ids vê
 - Para tirar um item: `itens_remover`. Para apagar o lançamento inteiro:
   `excluir_lancamento`.
 
+### Mudar o total de parcelas de uma série (`total_repeticoes`)
+
+`atualizar_lancamento` com `total_repeticoes` aumenta ou diminui o número de
+parcelas de uma série **limitada** (lançamento, dividido ou transferência).
+"Passa de 6 para 12 parcelas", "tira as parcelas depois da 8ª".
+
+- O usuário diz o **novo total** (contando todas as parcelas); não deduza o
+  número da frase. Vale a série inteira: não pergunte `escopo_serie` quando o
+  total é o único campo do pedido, e só com **um** id, sem `itens_*` no mesmo
+  pedido.
+- **Nunca grava na primeira vez.** A prévia (`confirmacao_necessaria`) traz
+  `quantidade_de_parcelas_a_criar` e `quantidade_de_parcelas_a_excluir`. Mostre
+  as duas, diga que as novas são cópias da última parcela em aberto (em aberto,
+  sem identificador externo) e que diminuir **exclui** as parcelas em aberto
+  acima do novo total, e só confirme depois do "sim" à prévia. Se o total pedido
+  é o já gravado, nada muda: diga isso ao usuário.
+- **Avulso que vira série:** `total_repeticoes` com `periodicidade` (`DS`, `D1`,
+  `D7`, `D15`, `M1`, `M2`, `M3`, `M6` ou `M12`; `DS` é segunda a sexta). Pergunte
+  a periodicidade se o usuário não disse, e confirme a quantidade, porque cada
+  parcela nova é um lançamento real. `total_repeticoes` sem `periodicidade` num
+  avulso é recusado (`periodicidade_obrigatoria`). **A periodicidade de uma série
+  existente não muda**: se o usuário pede para trocar mensal por semanal, diga
+  que não dá por aqui.
+- **Recusas, repasse o motivo e não contorne:** parcela paga ou com cobrança
+  depois da pedida trava a redução (`total_travado_por_parcela_posterior`); série
+  sem fim não se edita (`repeticao_nao_editavel`); total menor que 2, menor que
+  o número da parcela pedida ou acima de 35 anos (`total_fora_dos_limites`);
+  série com parcelas de outros criadores, para quem só vê os próprios
+  lançamentos (`serie_com_parcelas_de_outros_criadores`).
+- Se todas as parcelas vivas estão pagas, o valor das novas vem de uma parcela
+  já baixada e a resposta traz o aviso `valor_copiado_de_parcela_baixada`:
+  repasse o aviso ao usuário na prévia, para ele saber de onde vem o valor das
+  novas.
+
 ## Exclusão
 
 `excluir_lancamento` (`lancamento_ids`, de 1 a 100). Só com pedido direto e
@@ -153,7 +198,12 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
 - **Série com `este_e_proximos`**: os próximos já pagos ficam e aparecem em
   `pulados`; só saem com `excluir_pagos: true`, que o usuário precisa pedir.
 - **Transferência**: o id de qualquer ponta serve, e excluir uma exclui as
-  duas.
+  duas. Numa parcela de série de transferência, `escopo_serie` aceita `so_este`
+  (só o par da parcela pedida) e `este_e_proximos` (a pedida e as seguintes, com
+  prévia e confirmado), e `excluir_pagos` vale como no lançamento: cada parcela
+  sai sempre com as duas pontas, e a parcela que o estado impede em qualquer das
+  pontas fica como está e aparece em `pulados`. Em série **sem fim**, as parcelas
+  que sobram deixam de repetir nas duas pontas.
 - Se a resposta vier `nao_excluido` (conciliado, pago no caixa fechado, competência fechada, saldo
   inicial), nada foi excluído; repasse o motivo.
 
@@ -162,10 +212,17 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
 `criar_lancamento` com `tipo_lancamento: "transferencia"`. Campos e regras:
 
 - `conta_id` é a conta de **origem**, `conta_destino_id` a de destino; valor,
-  vencimento e descrição obrigatórios. Categoria, pessoa, forma, repetição,
-  itens e `identificador_externo` são recusados (a transferência tem um
-  identificador por ponta: `identificador_externo_origem` e
-  `identificador_externo_destino`, opcionais).
+  vencimento e descrição obrigatórios. Categoria, pessoa, forma, itens e
+  `identificador_externo` são recusados (a transferência tem um identificador
+  por ponta: `identificador_externo_origem` e `identificador_externo_destino`,
+  opcionais).
+- **Repetição:** a transferência aceita `repeticao`, como o lançamento
+  (`periodicidade` com `total_repeticoes` **ou** `infinito: true`). Cada
+  ocorrência é um **par de pontas**, todas no mesmo `grupo_id`, com as mesmas
+  tags e centro. **Só a 1ª nasce paga** (se houver `data_pagamento`) e os
+  identificadores externos ficam só na 1ª. **Confirme a quantidade com o
+  usuário dizendo que cada ocorrência são dois lançamentos reais** ("12
+  transferências, 24 lançamentos"). A resposta traz as pontas da 1ª ocorrência.
 - **Sem `data_pagamento`, ela nasce em aberto**, qualquer que seja o vencimento.
   Para uma transferência que já aconteceu, informe `data_pagamento` (hoje ou
   passada); o vencimento fica como veio. Pergunte a data se o usuário disse só
@@ -181,13 +238,28 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
   conta nem data de pagamento. Com a competência até a data de bloqueio de
   competência ela também não muda (valor, contas, descrição, competência), mas
   o vencimento passa; paga até a data de bloqueio de caixa, não muda nada.
-- Pagar ou estornar uma transferência não é por `registrar_pagamento` (recusa).
+- **Parcela de série de transferência:** `escopo_serie` vale (o padrão é
+  `so_este`, que muda só aquela parcela, e ela segue na série), e
+  `este_e_proximos` leva o que mudou também às parcelas seguintes, os dois
+  lançamentos de cada uma, **com prévia e `confirmado`** (pergunte o escopo como
+  numa série de lançamento). Só o que difere da pedida propaga; o vencimento anda
+  a partir do pedido, um período por parcela; a conta de origem e a de destino
+  vão cada uma para a sua ponta; a **baixa** (`data_pagamento`) e os
+  identificadores externos ficam só na parcela pedida; a parcela seguinte já paga
+  também muda, salvo a protegida por bloqueio, que fica como está e aparece em
+  `pulados`.
+- Efetivar, trocar a data ou estornar (`pago: false`) uma transferência é `registrar_pagamento` com o id de
+  qualquer ponta: vale para as duas, cada uma na sua conta, com um id ou com vários. Só a data:
+  `valor_pago`, `desconto`, `gerar_restante` e `conta_id` são recusados (`transferencia_so_com_data`);
+  para mudar conta ou valor, `atualizar_lancamento`.
 
 ## Repetição e dividido na criação
 
 - `repeticao` (`periodicidade` e `total_repeticoes` **ou** `infinito: true`,
   nunca os dois): **confirme a quantidade antes**, porque cada ocorrência é um
-  lançamento real. A resposta traz `repeticao.grupo_id` e `quantidade_criada`.
+  lançamento real (na transferência, um par de pontas). A resposta traz
+  `repeticao.grupo_id` e `quantidade_criada`. Para mudar depois o número de
+  parcelas, `total_repeticoes` em `atualizar_lancamento` (acima).
 - `itens`: o total é a soma dos itens; `valor`, `categoria_id` e os demais
   campos do nível de cima **não** se informam. Cada item leva a sua categoria
   e o seu `tipo`.
@@ -206,6 +278,9 @@ Dar baixa, trocar a data, pagar valor diferente, estornar, e tudo de anexos:
 `pagamento-e-anexos.md`. Pontos que não se negociam:
 
 - Nunca presuma "pagou hoje": confirme a data.
+- Baixa, troca de data e transferência pedidas juntas vão numa chamada só de
+  `registrar_pagamento`, com uma prévia só; com vários ids, um impedido segura o
+  pedido inteiro e a lista vai ao usuário.
 - Pagar menos que o valor: pergunte se a diferença é desconto ou saldo a pagar
   depois.
 - Estorno: não afirme que o valor voltou ao que era antes da baixa.

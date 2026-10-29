@@ -34,6 +34,10 @@ saiu, pela data de pagamento.
 Aplicar `conta_ids`, `categoria_ids` ou `centro_custo_lucro_ids` apenas quando o
 usuário restringir. Ao aplicar um filtro, declarar isso na resposta.
 
+Filtro por categoria ou centro com filhos: o id do pai vale por ele e por todos
+os descendentes ativos (não liste as filhas); diga isso ao usuário. Ver
+`regras-de-campo.md`.
+
 ## Apresentação
 
 1. **Período de referência**: recebido, pago, líquido. Saldo inicial e final.
