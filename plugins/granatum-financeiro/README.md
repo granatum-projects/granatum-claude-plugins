@@ -31,7 +31,8 @@ consulta e recusar o registro de lançamentos.
 Se você quer usar o plugin apenas para consultar, o controle está nas permissões
 de ferramentas do próprio Claude: bloqueie as ferramentas de escrita
 (`criar_lancamento`, `atualizar_lancamento`, `excluir_lancamento`,
-`registrar_pagamento`, `criar_pessoa`, `anexar_arquivo` e `excluir_anexo`), ou
+`registrar_pagamento`, `criar_pessoa`, `anexar_arquivo`, `excluir_anexo`,
+`conciliar` e `desconciliar`), ou
 marque-as como **sempre perguntar**.
 
 Não tem conta ainda, ou esqueceu a senha? A própria tela de login tem os links
@@ -71,6 +72,12 @@ Além das consultas, ele registra e altera movimentos conversando:
   lançamento dividido inteiro ou uma transferência.
 - **Pagar**: dar baixa, trocar a data do pagamento, pagar com juros, desconto ou
   só uma parte (a diferença vira um novo lançamento em aberto) e estornar.
+- **Série**: aumentar ou diminuir o número de parcelas de uma série limitada
+  (sempre com prévia), inclusive de transferências, que também podem se repetir.
+- **Conciliar** o extrato bancário: ver os movimentos pendentes, conciliar os
+  confiáveis e desfazer uma conciliação, sempre com prévia e o seu "sim" depois
+  dela. O que o MCP não faz (valor diferente, vários lançamentos para um
+  movimento, movimento de CSV) fica na tela de conciliação do Granatum.
 - **Anexos**: listar, baixar o link de um anexo, anexar e excluir (em duas
   chamadas; anexar depende de o ambiente conseguir enviar o arquivo, e o
   Claude avisa quando não consegue).
@@ -147,11 +154,11 @@ explica e orienta a anexar pela tela do lançamento no Granatum.
 ## Componentes
 
 - **1 conector MCP** — Granatum (produção)
-- **9 skills** — 7 comandos e duas bases de comportamento: `granatum-fundamentos`
-  (regras de regime contábil e guardrails de escrita, em toda interação) e
+- **10 skills** — 7 comandos e três bases de comportamento: `granatum-fundamentos`
+  (regras de regime contábil e guardrails de escrita, em toda interação),
   `escrita-avancada` (série, prévia e confirmação, dividido, transferência,
-  pagamento e anexos)
-- **18 ferramentas** do conector: 11 de consulta e 7 que gravam
+  pagamento e anexos) e `conciliacao` (conciliação do extrato bancário)
+- **21 ferramentas** do conector: 12 de consulta e 9 que gravam
 
 ## Privacidade
 

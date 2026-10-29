@@ -49,6 +49,8 @@ Quando o usuário pedir para conciliar ("pode conciliar as confiáveis"), isso a
 | `mudar_conta` | Já pago em outra conta: passa para a conta do extrato |
 | `mudar_data_do_pagamento_e_conta` | As duas coisas |
 
+Quando a ação muda o lançamento (todas menos `vincular`), vale o **caixa fechado**: se a data de pagamento antiga ou a nova cai até a data de bloqueio de caixa da empresa, o par é recusado, e o pedido inteiro com ele (veja a seção 7). Movimento importado por CSV também é recusado (veja a seção 4).
+
 Só quando o usuário responder a essa prévia, numa mensagem nova, aceitando, repita o pedido com `confirmado: true` (na resposta seguinte, nunca na mesma da prévia) e informe quantos foram conciliados (`conciliados`) e o que mudou. Se ele pedir outra coisa em vez de aceitar (menos um par, outro lançamento), é prévia nova.
 
 Errado: "Pode conciliar as confiáveis." → `conciliar` sem `confirmado` e, na mesma resposta, `conciliar` com `confirmado: true`. Certo: prévia e fim da resposta; "Sim." → `confirmado: true`.

@@ -14,6 +14,8 @@ O parâmetro `pago` decide a operação:
 | Trocar a data de um pago | `pago: true` e a `data_pagamento` nova; valor e conta não mudam |
 | Estornar | `pago: false`, sem `data_pagamento` |
 
+**Uma chamada só para o que o usuário pede junto.** Baixa, troca de data de pagamento, transferência e lançamento comum podem ir misturados nos `lancamento_ids` do **mesmo pedido** (com `pago: true` e a mesma `data_pagamento`). O usuário vê **uma prévia só**, que conta cada operação ("1 troca de data e 3 baixas"). Não separe em duas chamadas o que veio no mesmo pedido: a baixa de um id só grava **sem prévia**, e a prévia de só uma das partes esconderia a outra.
+
 **Valor diferente do lançamento** (`valor_pago`, só com um id e em lançamento em aberto):
 
 - Igual: quita.
@@ -28,7 +30,9 @@ A resposta traz `valor_original` (o valor antes desta baixa), `valor_pago` e `di
 
 **Competência fechada** (até a data de bloqueio de competência da empresa). O `valor` do lançamento **não muda** na baixa: o juros, a multa e o desconto nascem como **lançamento próprio**, "Diferença ref.: …", pago na data do pagamento, com a competência nessa data, o vencimento, a conta e a categoria do original (do tipo do original no juros e na multa, do tipo contrário no desconto). A resposta traz `lancamentos_da_diferenca` (e `lancamento_composto_das_diferencas_id` quando formam um dividido novo): mostre ao usuário o original e o da diferença, e não diga que o valor do original mudou. Pagar menos exige `desconto: true`; pagar mais cria os juros sem flag; `gerar_restante` é recusado. A data do pagamento com diferença não pode cair até o bloqueio de competência. O estorno do original não desfaz o lançamento da diferença; avise o usuário.
 
-**Caixa fechado.** Lançamento pago com data de pagamento até o bloqueio de caixa não se estorna nem troca a data; em vários ids, o lote inteiro é recusado e a resposta traz cada id com o motivo (repita sem eles). Repasse a frase da recusa e não tente contornar.
+**Caixa fechado.** Lançamento pago com data de pagamento até o bloqueio de caixa não se estorna nem troca a data. Repasse a frase da recusa e não tente contornar.
+
+**Vários ids são tudo ou nada.** Se algum id do pedido está **impedido**, a chamada não baixa, não troca a data nem estorna **nenhum** dos ids. Os impedimentos são: lançamento conciliado; NFS-e agendada para o recebimento ou o vencimento; lançamento de saldo inicial de uma conta; conta que não aceita o pagamento; transferência com uma ponta nessas condições; pago até a data de bloqueio de caixa. A prévia lista os `impedidos`, cada um com o motivo, e diz que nada será feito enquanto eles estiverem no pedido; confirmar com eles no pedido devolve o erro `alvos_impedidos` com a mesma lista. Mostre a lista ao usuário e, se ele quiser o restante, refaça a chamada **sem** esses ids: a prévia nova se mostra de novo antes do `confirmado`. Cobrança ativa em quem seria baixado também recusa o lote inteiro (a resposta traz os ids com cobrança). Já o que está pago (na baixa), já está na data pedida (na troca de data) ou não está pago (ao estornar) **não é impedimento**: fica como está, em silêncio, em `pulados`.
 
 **Estorno.** Limpa só a data de pagamento. O valor do lançamento não volta ao que era antes da baixa (na competência aberta, juros, desconto e baixa parcial reescrevem o valor; na fechada o valor não mudou na baixa e a diferença é outro lançamento, que o estorno não toca). Todo estorno responde com o mesmo aviso fixo, sem número. Repasse o aviso ao usuário e não prometa nem afirme um valor anterior: o estorno não sabe se a baixa teve juros, desconto ou restante. Um restante gerado pela baixa continua em aberto e não é apagado.
 
@@ -36,9 +40,9 @@ Outras regras:
 
 - Série: paga ou estorna só a ocorrência pedida, nunca as próximas; não há `escopo_serie`.
 - Dividido: o id de qualquer item paga o lançamento inteiro, só os itens em aberto (um item já pago fica como está, data e valor), e estorna o lançamento inteiro.
-- Transferência não tem baixa aqui: é recusada. A baixa dela é `atualizar_lancamento` com `data_pagamento` (hoje ou passada), e `data_vencimento` não baixa nem reabre.
+- Transferência: é uma unidade de duas pontas. O id de **qualquer ponta**, com um id ou com vários, efetiva as duas (`pago: true` com `data_pagamento`, cada uma na sua conta, sem mudar valor nem competência), troca a data das duas se já está efetivada (a mesma data não grava) ou reabre as duas (`pago: false`). As duas pontas no mesmo pedido contam uma vez. Só a data: `valor_pago`, `desconto`, `gerar_restante` e `conta_id` são recusados (`transferencia_so_com_data`, nada gravado); para mudar conta ou valor, `atualizar_lancamento`. O estorno só de transferência não leva o aviso do valor. `data_vencimento` não baixa nem reabre.
 - Em lançamento, `atualizar_lancamento` não aceita `data_pagamento`: o pagamento é desta tool.
-- Recusas comuns: data futura, pago até o bloqueio de caixa (não estorna nem troca a data), pagamento novo que cairia no caixa fechado, lançamento conciliado, cobrança ativa, NFS-e agendada para o recebimento.
+- Recusas comuns: data futura, pago até o bloqueio de caixa (não estorna nem troca a data), pagamento novo que cairia no caixa fechado, lançamento conciliado, cobrança ativa, NFS-e agendada para o recebimento ou o vencimento (só a interface do Granatum mexe na nota), lançamento de saldo inicial de uma conta.
 
 ## Anexos
 

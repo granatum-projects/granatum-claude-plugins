@@ -123,6 +123,19 @@ folha se repetem entre ramos diferentes.
 Existe categoria **mista** (aceita receita e despesa) — nela o tipo efetivo do
 lançamento vem só do `tipo_lancamento`/sinal do valor, não da categoria.
 
+### Filtrar por categoria ou centro que tem filhos
+
+Nos filtros de leitura (`categoria_ids` e `centro_custo_lucro_ids` de
+`obter_dre`, `obter_fluxo_caixa` e `obter_lancamentos`), o id de uma categoria
+com filhas vale pela categoria **e por todas as descendentes ativas**; o de um
+centro com filhos, pelo centro e por todos os descendentes ativos. Então "gastos
+com Operacionais" é o id da categoria-pai, **sem listar as filhas uma a uma**, e
+"só a Energia elétrica" é o id da folha. Diga ao usuário o que o filtro cobriu
+("Operacionais e as subcategorias ativas"). Descendente inativa não entra na
+conta: se o usuário espera um número que inclui uma categoria desativada, avise.
+Isto vale só para filtrar: **criar** lançamento continua exigindo a folha
+(`aceita_lancamento=true`).
+
 Categoria não é uma trava de sinal, nem mesmo categoria exclusiva de receita ou
 de despesa. A API não valida `tipo_categoria` contra o sinal do lançamento ao
 gravar — só usa isso para exibição em relatórios. Então categoria escolhida

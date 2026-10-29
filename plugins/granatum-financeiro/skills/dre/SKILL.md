@@ -25,6 +25,10 @@ gerador, independente de ter sido pago.
 - `periodo_referencia` — último período da janela. Omitir usa o último período
   completo. Formato conforme a periodicidade (ver `granatum-fundamentos`).
 - `limite_categorias` — 10 por padrão.
+- `categoria_ids` e `centro_custo_lucro_ids` — só quando o usuário restringir, e
+  declarar o filtro na resposta. O id de uma categoria ou centro com filhos vale
+  por ele e por todos os descendentes ativos: não liste as filhas (ver
+  `granatum-fundamentos/references/regras-de-campo.md`).
 - `incluir_observacoes` — ativar quando o usuário pedir explicação, não só
   números.
 - `modo_visualizacao` — omitir, que usa `completo`: realizado, previsto a vencer
