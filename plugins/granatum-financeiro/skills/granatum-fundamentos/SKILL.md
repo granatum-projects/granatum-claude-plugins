@@ -210,7 +210,8 @@ responde com o estado atual.
   opcionais. Regras completas em `references/regras-de-campo.md`.
 - `data_pagamento` não se altera por `atualizar_lancamento` em lançamento: dar
   baixa, trocar a data de um pagamento e estornar é `registrar_pagamento`. Na
-  transferência, a baixa é `data_pagamento` em `atualizar_lancamento`.
+  transferência também: `registrar_pagamento` com o id de qualquer ponta efetiva, troca a data ou reabre
+  as duas, só com a data.
 - Data de entrada com ano fora de 1600 a 9999 é recusada.
 
 ## Como apresentar números
