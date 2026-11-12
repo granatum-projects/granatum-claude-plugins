@@ -32,7 +32,8 @@ quando ela não diz.
 
 ## Série (parcelas e recorrência)
 
-Em `atualizar_lancamento`, `excluir_lancamento`, `anexar_arquivo` e
+Em `atualizar_lancamento`, `excluir_lancamento`, `anexar_arquivo`,
+`anexar_arquivo_por_url`, `anexar_arquivo_direto` (onde existir) e
 `excluir_anexo`, um lançamento de série sem `escopo_serie` **não grava**: a
 ferramenta devolve `status: "escopo_necessario"` com o tamanho da série
 (`tamanho_da_serie`, que conta as parcelas **vivas**, ou `serie_sem_fim`) e a

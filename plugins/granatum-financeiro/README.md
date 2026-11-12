@@ -78,9 +78,11 @@ Além das consultas, ele registra e altera movimentos conversando:
   confiáveis e desfazer uma conciliação, sempre com prévia e o seu "sim" depois
   dela. O que o MCP não faz (valor diferente, vários lançamentos para um
   movimento, movimento de CSV) fica na tela de conciliação do Granatum.
-- **Anexos**: listar, baixar o link de um anexo, anexar e excluir (em duas
-  chamadas; anexar depende de o ambiente conseguir enviar o arquivo, e o
-  Claude avisa quando não consegue).
+- **Anexos**: listar, ler o conteúdo e baixar o link de um anexo, anexar e
+  excluir. Anexar um arquivo local (em duas chamadas) depende de o ambiente
+  conseguir enviá-lo, e o Claude avisa quando não consegue. Anexar **por um
+  link** que você der (em duas chamadas) não depende do ambiente: o Granatum
+  baixa o arquivo; link que exige login não funciona.
 - **Saldo** das contas num dia que já passou, ou dia a dia numa conta
   (inclusive previsto, que é estimativa).
 
@@ -147,9 +149,11 @@ caso.
 **Lançamento conciliado ou em período bloqueado:** não muda de valor, conta nem
 data de pagamento, e o Claude diz o motivo em vez de tentar de novo.
 
-**Anexar arquivo não funcionou:** depende de o Claude conseguir executar um
-comando com acesso à rede (é o caso do Claude Code). Onde não consegue, ele
-explica e orienta a anexar pela tela do lançamento no Granatum.
+**Anexar arquivo não funcionou:** anexar um arquivo local depende de o Claude
+conseguir executar um comando com acesso à rede (é o caso do Claude Code). Onde
+não consegue, ele explica e orienta a anexar pela tela do lançamento no
+Granatum. Anexar por link precisa de um link de download direto (HTTPS, sem
+login); uma página de login ou de visualização é recusada.
 
 ## Componentes
 
