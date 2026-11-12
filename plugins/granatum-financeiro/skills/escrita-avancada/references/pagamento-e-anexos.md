@@ -67,28 +67,17 @@ Outras regras:
 
 *No ChatGPT (e no Codex): `anexar_arquivo_direto`.* Só para o arquivo que o usuário anexou nesta conversa: o ChatGPT entrega o arquivo no argumento `arquivo` (`download_url`, `file_id`) e o Granatum o baixa sozinho; você não roda comando. Não invente nem reaproveite link, e `file_id` é identificador do ChatGPT, não um anexo do Granatum.
 
-- Fora de série: baixa e anexa na mesma chamada e devolve `status: "anexado"`. Repetir a chamada com o mesmo arquivo não duplica: devolve o anexo já criado (`repetido: true`).
+- Fora de série: baixa e anexa na mesma chamada e devolve `status: "anexado"`. Repetir a chamada com o mesmo arquivo não duplica: devolve o anexo já criado (`repetido: true`). Se o usuário subir o arquivo de novo na conversa, o ChatGPT o trata como outro arquivo (novo `file_id`) e um segundo anexo é criado: antes de reenviar, confira com `obter_lancamentos` (`campos_adicionais: ["anexos"]`) se ele já está no lançamento.
 - Série: ver "Série" abaixo; a confirmação vem com `envio_id` e sem `arquivo`.
 
-**Contrato de arquivo da OpenAI.** A tool anuncia `_meta: {"openai/fileParams": ["arquivo"]}` no descritor. Essa marca pertence ao descritor MCP, não aos argumentos da chamada. No runtime, `arquivo` é um objeto com campos em snake_case:
+**O argumento `arquivo`.** A tool declara `_meta: {"openai/fileParams": ["arquivo"]}` no descritor, e é o ChatGPT quem preenche o argumento com o arquivo da conversa: um objeto com `download_url` e `file_id` (obrigatórios) e `mime_type` e `file_name` (opcionais), em snake_case. Esses valores vêm só da integração de arquivos do ChatGPT: não os escreva, não use marcadores nem complete campo faltante, e não publique um arquivo do sandbox para obter um link. O `window.openai.getFileDownloadUrl` da documentação da OpenAI é de widget, não uma tool desta conversa. Referência: [OpenAI, Define file inputs](https://developers.openai.com/plugins/reference#define-file-inputs).
 
-```json
-{
-  "download_url": "<URL temporária real fornecida pelo ChatGPT>",
-  "file_id": "<identificador real do arquivo no ChatGPT>",
-  "mime_type": "<tipo MIME, quando fornecido>",
-  "file_name": "<nome do arquivo, quando fornecido>"
-}
-```
+**Se não anexou, diga em que ponto parou**, sem mostrar link temporário, token ou `envio_id`:
 
-O exemplo ilustra a forma, não valores para enviar: não use os marcadores nem preencha campos faltantes por adivinhação. `download_url` e `file_id` são obrigatórios; `mime_type` e `file_name` são opcionais. Esses dados vêm da integração de arquivos do ChatGPT, não de publicar um arquivo do sandbox. O helper `window.openai.getFileDownloadUrl` citado na documentação pertence a um widget da plataforma; não é uma tool de chat nem uma API para chamar no terminal neste fluxo. Ver [OpenAI, Define file inputs](https://developers.openai.com/plugins/reference#define-file-inputs).
-
-**Se falhar, identifique o ponto.**
-
-- Tool ausente: informe que o conector selecionado não oferece `anexar_arquivo_direto` e peça para conferir o conector/ambiente e atualizar suas ferramentas.
-- Sem objeto de arquivo (argumento ausente, ou texto como `"chat_upload"` no app de celular): informe que não recebeu `download_url` e `file_id` pela integração de arquivos; peça para anexar novamente no ChatGPT web. Não atribua ao Granatum uma recusa se nenhuma chamada foi feita.
-- Houve chamada e voltou `INVALID_ARGUMENT` com "nada foi baixado nem anexado": o servidor baixa de qualquer host HTTPS público, então a recusa não é questão de domínio. Foi o link (vencido, com login, de rede interna, com mais de 3 redirecionamentos, página HTML no lugar do arquivo, arquivo maior que 5 MB ou vazio) ou o próprio download. Repasse a mensagem, peça ao usuário para anexar o arquivo de novo no ChatGPT e, se não der, anexar pela tela do lançamento. Não invente outro link nem repita a mesma tentativa após a recusa.
-- Informe se houve chamada real e preserve o código/mensagem da resposta, sem URL temporária, token ou `envio_id`. Não conclua, só por não ter terminal, que o Granatum não aceita o envio.
+- *A tool não aparece:* o conector está com a lista de ferramentas antiga. Peça ao usuário para atualizá-lo (no ChatGPT: Settings → Apps & Connectors → o conector do Granatum → Refresh) e abrir uma conversa nova.
+- *O arquivo não chegou* (argumento ausente, ou texto como `"chat_upload"`, comum no app de celular): a tool recusa sem baixar nada. Peça para anexar de novo pelo ChatGPT na web. Nada foi recusado pelo Granatum se nenhuma chamada saiu.
+- *A tool recusou o link* (`INVALID_ARGUMENT`, "nada foi baixado nem anexado"): o Granatum baixa de qualquer endereço HTTPS público, então não é questão de domínio. Foi o link (vencido, de rede interna, com mais de 3 redirecionamentos, página HTML no lugar do arquivo, arquivo vazio ou maior que 5 MB) ou o próprio download. Repasse a mensagem, peça para anexar de novo e, se não der, para anexar pela tela do lançamento. Não troque o link nem repita a mesma chamada.
+- Não ter terminal não impede o envio direto: não conclua que o Granatum não aceita o arquivo por isso.
 
 *Um link que o usuário deu (qualquer cliente): `anexar_arquivo_por_url`, em duas chamadas.* O Granatum baixa o arquivo do link; você não roda comando nem precisa de terminal. Use quando o usuário passar um link de download (por exemplo o de um arquivo do Basecamp) ou quando você tiver obtido o link numa ferramenta que o usuário já autorizou. **Não** é para o arquivo anexado na conversa do ChatGPT (esse é o `anexar_arquivo_direto`).
 
@@ -96,7 +85,7 @@ O exemplo ilustra a forma, não valores para enviar: não use os marcadores nem 
 2. Confirmar: chame de novo com `lancamento_id` e `envio_id`, sem `url` nem `nome_arquivo` (mais `escopo_serie`, se for série). A tool registra o anexo e devolve `status: "anexado"`; o arquivo não é baixado outra vez.
 
 - O link precisa ser HTTPS, público ou assinado, e baixar o arquivo com um GET simples: o Granatum não manda cookie, token nem cabeçalho. **Link que exige login** (a página de visualização do Basecamp ou do Drive, por exemplo) não funciona. Se não houver um link de download direto, diga isso ao usuário e oriente-o a anexar pela tela do lançamento; não improvise, não invente link nem origem, e não finja que o arquivo veio do ChatGPT. Nunca invente um `file_id` nem crie uma assinatura para fazer o link passar.
-- Domínio internacional (com acento, por exemplo) só é aceito na forma `xn--` do endereço, a que costuma vir ao copiar o link do navegador; o endereço digitado em Unicode volta recusado. Não converta por conta própria se não tiver certeza: informe a recusa.
+- Domínio internacional (com acento, por exemplo) só passa na forma `xn--` do endereço, a que costuma vir ao copiar o link do navegador; digitado em Unicode, volta recusado. Na dúvida, não converta: informe a recusa.
 - Se a resposta for a recusa de página HTML (o link devolveu uma página de login, de visualização ou de erro), **não** renomeie nem converta a página: peça ao usuário um link de download direto, ou oriente a anexar pela tela. Só uma página que o usuário quer mesmo guardar como anexo vai com nome terminado em `.html` ou `.htm`.
 - Link recusado (`http://`, rede interna, mais de 3 redirecionamentos, maior que 5 MB): informe ao usuário; não tente outra origem.
 - **Não é idempotente por link.** Dois pedidos iguais criam dois envios pendentes, e confirmar os dois anexa o arquivo duas vezes. Depois de um erro ou de uma resposta perdida, **confira o lançamento** (`obter_lancamentos` com `campos_adicionais: ["anexos"]`) antes de repetir o pedido. Repetir a confirmação do mesmo `envio_id` não duplica: a tool recusa (`arquivo_nao_enviado`) porque o arquivo já foi consumido.
