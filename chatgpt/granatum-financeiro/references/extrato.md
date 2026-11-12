@@ -77,6 +77,8 @@ link; o link vem de `obter_anexo` com o `anexo_id`, válido por 30 minutos, e s�
 se entrega ao usuário que pediu (ver `escrita-avancada.md`). Quando o formato é lido
 (PDF, imagem, texto, planilha), o `obter_anexo` traz também o conteúdo.
 
+`agrupar_divididos: true` devolve cada lançamento dividido como **uma linha**, com `valor` igual ao total dos itens, `ids_dos_itens` e `quantidade_itens` (`valor_min` e `valor_max` olham esse total). Use para achar o dividido pelo valor de um movimento do extrato; sem ele, vem uma linha por item.
+
 Não inferir repetição, parcela ou forma de pagamento pela descrição ou por
 padrão de datas. Se a pergunta depende disso, pedir o grupo correspondente e
 responder com o dado registrado. Detalhes dos campos em

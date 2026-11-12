@@ -95,7 +95,7 @@ Com um id e sem série não há prévia, exceto na exclusão de lançamento divi
 ### Quando algum id é impedido
 
 Com vários ids, todo id pedido é alvo. Se algum está impedido pelo estado
-(conciliado, pago até a data de bloqueio de caixa, com competência até a de
+(conciliado (a saída é `desconciliar` antes, perfis Administrador e Lançamentos), pago até a data de bloqueio de caixa, com competência até a de
 competência, saldo inicial, cobrança ou NFS-e
 agendada, fatura de cartão; na exclusão e no pagamento, também transferência
 com ponta impedida), **nada** é
@@ -212,7 +212,7 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
   pontas fica como está e aparece em `pulados`. Em série **sem fim**, as parcelas
   que sobram deixam de repetir nas duas pontas.
 - Se a resposta vier `nao_excluido` (conciliado, pago no caixa fechado, competência fechada, saldo
-  inicial), nada foi excluído; repasse o motivo.
+  inicial), nada foi excluído; repasse o motivo. No conciliado, proponha `desconciliar` antes (perfis Administrador e Lançamentos; skill `conciliacao`).
 
 ## Transferência entre contas
 

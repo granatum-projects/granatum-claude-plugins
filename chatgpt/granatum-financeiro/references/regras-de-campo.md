@@ -72,6 +72,8 @@ id vem `0` e a descrição `null`. O `0` é o mesmo valor aceito pelo filtro
 `centro_custo_lucro_ids`, então dá para copiar o id da resposta direto para a
 próxima consulta.
 
+`conciliado` (verdadeiro quando o lançamento tem vínculo com um movimento do extrato; `desconciliar` desfaz o vínculo) também vem em cada lançamento. Num dividido agrupado (`agrupar_divididos: true`), é verdadeiro se algum item está conciliado.
+
 **Sob demanda (`campos_adicionais`):** só aparecem quando pedidos. Um grupo não
 pedido não vem nem como `null`; um grupo pedido e sem valor vem explícito
 (`null`, `0` ou `[]`). A resposta confirma o que veio em

@@ -32,7 +32,7 @@ Se você quer usar o plugin apenas para consultar, o controle está nas permiss�
 de ferramentas do próprio Claude: bloqueie as ferramentas de escrita
 (`criar_lancamento`, `atualizar_lancamento`, `excluir_lancamento`,
 `registrar_pagamento`, `criar_pessoa`, `anexar_arquivo`, `anexar_arquivo_por_url`, `excluir_anexo`,
-`conciliar` e `desconciliar`), ou
+`conciliar`, `desconciliar` e `ignorar_movimentos`), ou
 marque-as como **sempre perguntar**.
 
 Não tem conta ainda, ou esqueceu a senha? A própria tela de login tem os links
@@ -75,14 +75,18 @@ Além das consultas, ele registra e altera movimentos conversando:
 - **Série**: aumentar ou diminuir o número de parcelas de uma série limitada
   (sempre com prévia), inclusive de transferências, que também podem se repetir.
 - **Conciliar** o extrato bancário: ver os movimentos pendentes, conciliar os
-  confiáveis e desfazer uma conciliação, sempre com prévia e o seu "sim" depois
-  dela. O que o MCP não faz (valor diferente, vários lançamentos para um
-  movimento, movimento de CSV) fica na tela de conciliação do Granatum.
-- **Anexos**: listar, ler o conteúdo e baixar o link de um anexo, anexar e
+  confiáveis, ligar um movimento à soma de vários lançamentos (ou a um
+  lançamento dividido), ignorar e restaurar movimentos e desfazer uma
+  conciliação, sempre com prévia e o seu "sim" depois dela. O que o MCP não faz
+  (valor diferente, vários movimentos para um lançamento, movimento de CSV)
+  fica na tela de conciliação do Granatum.
+- **Anexos**: listar, ler o conteúdo (imagem, PDF, texto, planilha e documento;
+  outros formatos só trazem o link) e baixar o link de um anexo, anexar e
   excluir. Anexar um arquivo local (em duas chamadas) depende de o ambiente
   conseguir enviá-lo, e o Claude avisa quando não consegue. Anexar **por um
   link** que você der (em duas chamadas) não depende do ambiente: o Granatum
-  baixa o arquivo; link que exige login não funciona.
+  baixa o arquivo; link que exige login não funciona. No ChatGPT e no Codex,
+  o arquivo anexado à conversa vai direto, sem comando.
 - **Saldo** das contas num dia que já passou, ou dia a dia numa conta
   (inclusive previsto, que é estimativa).
 
@@ -147,7 +151,8 @@ conta e o resto se alteram pelo sistema do Granatum; o Claude avisa quando é o
 caso.
 
 **Lançamento conciliado ou em período bloqueado:** não muda de valor, conta nem
-data de pagamento, e o Claude diz o motivo em vez de tentar de novo.
+data de pagamento, e o Claude diz o motivo em vez de tentar de novo. No
+conciliado, a saída é desfazer a conciliação antes (com prévia e o seu "sim").
 
 **Anexar arquivo não funcionou:** anexar um arquivo local depende de o Claude
 conseguir executar um comando com acesso à rede (é o caso do Claude Code). Onde
@@ -162,7 +167,7 @@ login); uma página de login ou de visualização é recusada.
   (regras de regime contábil e guardrails de escrita, em toda interação),
   `escrita-avancada` (série, prévia e confirmação, dividido, transferência,
   pagamento e anexos) e `conciliacao` (conciliação do extrato bancário)
-- **21 ferramentas** do conector: 12 de consulta e 9 que gravam
+- **23 ferramentas** do conector: 12 de consulta e 11 que gravam
 
 ## Privacidade
 

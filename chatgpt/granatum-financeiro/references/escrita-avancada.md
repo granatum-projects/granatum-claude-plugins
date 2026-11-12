@@ -32,8 +32,9 @@ quando ela não diz.
 
 ## Série (parcelas e recorrência)
 
-Em `atualizar_lancamento`, `excluir_lancamento`, `anexar_arquivo`, `anexar_arquivo_direto`,
-`anexar_arquivo_por_url` e `excluir_anexo`, um lançamento de série sem `escopo_serie` **não grava**: a
+Em `atualizar_lancamento`, `excluir_lancamento`, `anexar_arquivo`,
+`anexar_arquivo_por_url`, `anexar_arquivo_direto` (onde existir) e
+`excluir_anexo`, um lançamento de série sem `escopo_serie` **não grava**: a
 ferramenta devolve `status: "escopo_necessario"` com o tamanho da série
 (`tamanho_da_serie`, que conta as parcelas **vivas**, ou `serie_sem_fim`) e a
 posição. Quando vier também `total_gravado`, o total gravado é outro (excluir
@@ -94,7 +95,7 @@ Com um id e sem série não há prévia, exceto na exclusão de lançamento divi
 ### Quando algum id é impedido
 
 Com vários ids, todo id pedido é alvo. Se algum está impedido pelo estado
-(conciliado, pago até a data de bloqueio de caixa, com competência até a de
+(conciliado (a saída é `desconciliar` antes, perfis Administrador e Lançamentos), pago até a data de bloqueio de caixa, com competência até a de
 competência, saldo inicial, cobrança ou NFS-e
 agendada, fatura de cartão; na exclusão e no pagamento, também transferência
 com ponta impedida), **nada** é
@@ -211,7 +212,7 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
   pontas fica como está e aparece em `pulados`. Em série **sem fim**, as parcelas
   que sobram deixam de repetir nas duas pontas.
 - Se a resposta vier `nao_excluido` (conciliado, pago no caixa fechado, competência fechada, saldo
-  inicial), nada foi excluído; repasse o motivo.
+  inicial), nada foi excluído; repasse o motivo. No conciliado, proponha `desconciliar` antes (perfis Administrador e Lançamentos; referência `conciliacao.md`).
 
 ## Transferência entre contas
 
@@ -276,11 +277,11 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
 
 ## Pessoa
 
-`criar_pessoa` só depois de `buscar_pessoas` por nome ou nome fantasia: o mesmo
+`criar_pessoa` só depois de `buscar_pessoas` por nome ou documento: o mesmo
 nome repetido é aceito e duplicaria o cadastro. Só `nome` e `papel` são
-obrigatórios. Use só os campos que a ferramenta oferece: dados de cadastro que ela
-não recebe, não peça ao usuário; oriente-o a completá-los pela tela do Granatum.
-Editar e excluir pessoa não existem aqui.
+obrigatórios; nunca invente documento. Use só os campos que a ferramenta oferece:
+se ela não tiver campo de documento, não peça o documento ao usuário e oriente-o a
+preenchê-lo pela tela do Granatum. Editar e excluir pessoa não existem aqui.
 
 ## Pagamento e anexos
 

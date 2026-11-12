@@ -71,7 +71,8 @@ Escritas atingem os livros reais do cliente. Não existe modo de simulação.
 
 Valem para toda ferramenta que grava: `criar_lancamento`,
 `atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento`,
-`criar_pessoa`, `anexar_arquivo`, `anexar_arquivo_direto`, `anexar_arquivo_por_url`, `excluir_anexo`, `conciliar` e `desconciliar`.
+`criar_pessoa`, `anexar_arquivo`, `anexar_arquivo_por_url`, `anexar_arquivo_direto` (onde existir),
+`excluir_anexo`, `conciliar`, `desconciliar` e `ignorar_movimentos`.
 Série, prévia, dividido, transferência, pagamento e anexos têm o detalhe na
 referência `escrita-avancada.md`; a conciliação bancária, na referência `conciliacao.md`.
 
@@ -112,10 +113,11 @@ também para a transferência, que tem um identificador por ponta.
 
 **Prévia e escopo:**
 
-`atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento` e
-`excluir_anexo` não gravam na primeira vez quando a chamada alcança mais de um
+`atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento`,
+`excluir_anexo` e, com `este_e_proximos`, as de anexar (`anexar_arquivo`, `anexar_arquivo_por_url`,
+`anexar_arquivo_direto`) não gravam na primeira vez quando a chamada alcança mais de um
 lançamento (vários ids, "este e os próximos" ou, em `atualizar_lancamento`, uma
-mudança de `total_repeticoes`): devolvem `confirmacao_necessaria` com a prévia.
+mudança de `total_repeticoes`): devolvem `confirmacao_necessaria` com a prévia. `conciliar`, `desconciliar` e `ignorar_movimentos` também não gravam sem `confirmado: true`: toda chamada é primeiro a prévia, mesmo com um movimento só (detalhe na referência `conciliacao.md`).
 Numa série de transferência a contagem é por parcela e cada parcela são dois
 lançamentos; repasse as duas contagens que a prévia traz. Em lançamento de
 série, sem `escopo_serie` devolvem `escopo_necessario` (exceto a edição de

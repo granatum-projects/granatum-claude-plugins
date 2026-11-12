@@ -9,7 +9,7 @@ description: >
   Apply the shared Granatum rules first, then load the reference that matches
   the requested operation.
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # Granatum Financeiro
