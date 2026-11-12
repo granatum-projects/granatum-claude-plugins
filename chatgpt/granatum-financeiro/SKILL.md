@@ -40,3 +40,5 @@ connection is unavailable instead of fabricating data or a successful result.
 For an attachment sent in the ChatGPT conversation, read [pagamento-e-anexos.md](references/pagamento-e-anexos.md)
 before claiming that uploading is unavailable. If the selected connector offers `anexar_arquivo_direto`, use it:
 this flow needs no shell. Distinguish a missing tool from a file object that ChatGPT did not provide.
+For a download link the user gives (for example from Basecamp), use `anexar_arquivo_por_url` in two calls; it needs no shell either.
+It works only with a public or signed HTTPS link that downloads without login. Never invent a link, a `file_id` or an origin.

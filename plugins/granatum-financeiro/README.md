@@ -31,7 +31,7 @@ consulta e recusar o registro de lançamentos.
 Se você quer usar o plugin apenas para consultar, o controle está nas permissões
 de ferramentas do próprio Claude: bloqueie as ferramentas de escrita
 (`criar_lancamento`, `atualizar_lancamento`, `excluir_lancamento`,
-`registrar_pagamento`, `criar_pessoa`, `anexar_arquivo`, `excluir_anexo`,
+`registrar_pagamento`, `criar_pessoa`, `anexar_arquivo`, `anexar_arquivo_por_url`, `excluir_anexo`,
 `conciliar` e `desconciliar`), ou
 marque-as como **sempre perguntar**.
 

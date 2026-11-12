@@ -71,7 +71,7 @@ Escritas atingem os livros reais do cliente. Não existe modo de simulação.
 
 Valem para toda ferramenta que grava: `criar_lancamento`,
 `atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento`,
-`criar_pessoa`, `anexar_arquivo`, `excluir_anexo`, `conciliar` e `desconciliar`.
+`criar_pessoa`, `anexar_arquivo`, `anexar_arquivo_direto`, `anexar_arquivo_por_url`, `excluir_anexo`, `conciliar` e `desconciliar`.
 Série, prévia, dividido, transferência, pagamento e anexos têm o detalhe na
 skill `escrita-avancada`; a conciliação bancária, na skill `conciliacao`.
 
