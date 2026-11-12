@@ -74,7 +74,8 @@ recorta o conjunto. Para exibir as tags de cada item, pedir também
 
 Anexos: `anexos` traz `{id, nome, tipo, tamanho_bytes}` por lançamento, sem o
 link; o link vem de `obter_anexo` com o `anexo_id`, válido por 30 minutos, e só
-se entrega ao usuário que pediu (ver `escrita-avancada.md`).
+se entrega ao usuário que pediu (ver `escrita-avancada.md`). Quando o formato é lido
+(PDF, imagem, texto, planilha), o `obter_anexo` traz também o conteúdo.
 
 Não inferir repetição, parcela ou forma de pagamento pela descrição ou por
 padrão de datas. Se a pergunta depende disso, pedir o grupo correspondente e
