@@ -132,6 +132,13 @@ qualquer item. Para mudar o dividido inteiro, mande os ids de todos os itens
   usuário confirmou.
 - **Tags**: `tags_adicionar` e `tags_remover` não substituem o conjunto, as
   outras ficam. Para "coloca a tag X em todos", use `tags_adicionar`.
+- **Competência numa série** (`data_competencia` com `escopo_serie:
+  "este_e_proximos"`): em série sem fim, a informada vale para a parcela pedida
+  e as seguintes andam a partir dela pela periodicidade, no mesmo dia (cortado
+  no fim do mês); em série com fim, vale para todas, da parcela pedida em
+  diante, se a série já tem a mesma competência na primeira e na última parcela,
+  senão as seguintes andam a partir dela. `""` deixa cada parcela no próprio
+  vencimento. Mostre isso na prévia.
 - **Pagamento** não se edita aqui: em lançamento, `data_pagamento` é recusado.
   Dar baixa, trocar a data ou estornar é `registrar_pagamento`.
 - **Cobrança ou NFS-e agendada**: só aceitam observação, documento, tipo de
@@ -182,7 +189,8 @@ parcelas de uma série **limitada** (lançamento, dividido ou transferência).
   acima do novo total, e só confirme depois do "sim" à prévia. A competência das
   parcelas novas é a da última parcela não excluída (igual em todas as novas);
   numa série que nasceu com a competência igual ao vencimento, cada nova fica no
-  próprio vencimento. Se o total pedido
+  próprio vencimento, o que vale também quando a última parcela não tem
+  competência gravada. Se o total pedido
   é o já gravado, nada muda: diga isso ao usuário.
 - **Avulso que vira série:** `total_repeticoes` com `periodicidade` (`DS`, `D1`,
   `D7`, `D15`, `M1`, `M2`, `M3`, `M6` ou `M12`; `DS` é segunda a sexta). Pergunte
@@ -322,7 +330,9 @@ cadastro não existem aqui: diga que isso se faz pela tela do Granatum.
 - **Categoria**: sem `parent_id` ela nasce na raiz e o `tipo` (`despesa` ou
   `receita`) é obrigatório: pergunte, não deduza do nome. Com `parent_id` ela é
   filha, herda tipo e cor do pai (o `tipo` enviado é ignorado) e o **pai passa a
-  não aceitar lançamento**; avise isso. O pai vem de `listar_categorias`.
+  não aceitar lançamento**; avise isso **antes** de chamar a tool (ao propor ou
+  ao confirmar o nome), mesmo que o usuário tenha dado o nome da filha. O pai
+  vem de `listar_categorias`.
 - **Pai com lançamentos diretos**: sem destino nada é criado e a resposta
   (`recusado`) traz a quantidade. Pergunte ao usuário para onde mover esses
   lançamentos: para a categoria nova (`migrar_para_nova: true`) ou para outra
