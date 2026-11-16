@@ -28,7 +28,7 @@ fosse um lançamento diferente e o cliente fica com dois registros iguais.
 | --- | --- |
 | `data_vencimento` | Obrigatório. Quando o valor vence. |
 | `data_pagamento` | Presente = pago. Ausente = previsto. Não pode ser futura. |
-| `data_competencia` | Se omitida, o Granatum resolve. Nunca preencher com palpite. |
+| `data_competencia` | Se omitida, o Granatum resolve. Nunca preencher com palpite. Com `repeticao`: série com fim, a informada vale para todas as parcelas e, omitida, cada parcela fica no próprio vencimento; série sem fim, avança pela periodicidade a partir da informada. |
 
 Todas em `YYYY-MM-DD`.
 

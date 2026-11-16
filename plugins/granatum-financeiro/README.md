@@ -31,8 +31,10 @@ consulta e recusar o registro de lançamentos.
 Se você quer usar o plugin apenas para consultar, o controle está nas permissões
 de ferramentas do próprio Claude: bloqueie as ferramentas de escrita
 (`criar_lancamento`, `atualizar_lancamento`, `excluir_lancamento`,
-`registrar_pagamento`, `criar_pessoa`, `anexar_arquivo`, `anexar_arquivo_por_url`, `excluir_anexo`,
-`conciliar`, `desconciliar` e `ignorar_movimentos`), ou
+`registrar_pagamento`, `criar_pessoa`, `criar_categoria`, `criar_tag`,
+`criar_centro_custo_lucro`, `criar_forma_pagamento`, `anexar_arquivo`,
+`anexar_arquivo_por_url`, `excluir_anexo`, `conciliar`, `desconciliar` e
+`ignorar_movimentos`), ou
 marque-as como **sempre perguntar**.
 
 Não tem conta ainda, ou esqueceu a senha? A própria tela de login tem os links
@@ -65,7 +67,8 @@ trimestre", "quantas parcelas do notebook ainda faltam".
 Além das consultas, ele registra e altera movimentos conversando:
 
 - **Criar** receita, despesa, parcelamento, recorrência, lançamento dividido em
-  itens e transferência entre contas; cadastrar cliente ou fornecedor novo.
+  itens e transferência entre contas; cadastrar cliente ou fornecedor novo e
+  criar categoria (ou subcategoria), tag, centro de custo e forma de pagamento.
 - **Alterar** um lançamento, vários de uma vez, uma parcela ou o restante de uma
   série, os itens de um lançamento dividido, tags e transferências.
 - **Excluir** um lançamento, vários, uma parcela ou o restante de uma série, um
@@ -166,8 +169,9 @@ login); uma página de login ou de visualização é recusada.
 - **10 skills** — 7 comandos e três bases de comportamento: `granatum-fundamentos`
   (regras de regime contábil e guardrails de escrita, em toda interação),
   `escrita-avancada` (série, prévia e confirmação, dividido, transferência,
-  pagamento e anexos) e `conciliacao` (conciliação do extrato bancário)
-- **23 ferramentas** do conector: 12 de consulta e 11 que gravam
+  pagamento, anexos e criação de categoria, tag, centro de custo e forma de pagamento) e `conciliacao` (conciliação do extrato bancário)
+- **27 ferramentas** do conector: 12 de consulta e 15 que gravam (no ChatGPT e no
+  Codex há também `anexar_arquivo_direto`)
 
 ## Privacidade
 

@@ -71,7 +71,8 @@ Escritas atingem os livros reais do cliente. Não existe modo de simulação.
 
 Valem para toda ferramenta que grava: `criar_lancamento`,
 `atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento`,
-`criar_pessoa`, `anexar_arquivo`, `anexar_arquivo_por_url`, `anexar_arquivo_direto` (onde existir),
+`criar_pessoa`, `criar_categoria`, `criar_tag`, `criar_centro_custo_lucro`,
+`criar_forma_pagamento`, `anexar_arquivo`, `anexar_arquivo_por_url`, `anexar_arquivo_direto` (onde existir),
 `excluir_anexo`, `conciliar`, `desconciliar` e `ignorar_movimentos`.
 Série, prévia, dividido, transferência, pagamento e anexos têm o detalhe na
 referência `escrita-avancada.md`; a conciliação bancária, na referência `conciliacao.md`.
@@ -84,7 +85,10 @@ referência `escrita-avancada.md`; a conciliação bancária, na referência `co
   tenham sido informados de uma vez.
 - Validar a categoria: só usar item com `aceita_lancamento=true`. Categoria-pai é
   recusada pela API. Se o usuário nomear uma categoria-pai, mostrar as folhas
-  disponíveis abaixo dela e pedir para escolher.
+  disponíveis abaixo dela e pedir para escolher. Se a categoria, a tag, o centro
+  ou a forma de pagamento que ele quer não existe, não troque por outra: ofereça
+  criá-la (`criar_categoria`, `criar_tag`, `criar_centro_custo_lucro`,
+  `criar_forma_pagamento`; regras na referência `escrita-avancada.md`).
 - Categoria **não** valida o `tipo_lancamento`. Existe categoria mista (aceita
   os dois tipos), e mesmo categoria exclusiva de receita ou despesa não
   bloqueia um lançamento do tipo oposto — a API não faz essa checagem. Nunca
@@ -94,6 +98,12 @@ referência `escrita-avancada.md`; a conciliação bancária, na referência `co
   devolveu um recebimento, empréstimo concedido que voltou) — não é só um risco
   a evitar. Detalhes em `regras-de-campo.md`.
 - Validar a conta: usar `listar_contas` com `apenas_para_lancamento=true`.
+
+**Antes de criar categoria, tag, centro de custo/lucro ou forma de pagamento:**
+listar os existentes (a mesma descrição repetida é aceita e duplicaria), usar o
+nome que o usuário deu e, em `criar_categoria` com pai que já tem lançamentos,
+perguntar o destino deles e só enviar `confirmado: true` depois do "sim" à
+prévia. Detalhe na referência `escrita-avancada.md`.
 
 **Antes de `atualizar_lancamento`:**
 
