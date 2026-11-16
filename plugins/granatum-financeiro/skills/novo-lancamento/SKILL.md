@@ -63,8 +63,11 @@ falta, não repetir o que foi dado.
 - **Pessoa**: `buscar_pessoas` quando o usuário nomear cliente ou fornecedor.
   Se não achar, oferecer cadastrar com `criar_pessoa` (ver `escrita-avancada`)
   ou seguir sem pessoa; não travar o fluxo.
-- **Forma de pagamento** e **centro de custo**: só resolver se o usuário
-  mencionar.
+- **Forma de pagamento**, **centro de custo** e **tags**: só resolver se o usuário
+  mencionar. Se o que ele citou não existe (categoria, tag, centro ou forma),
+  ofereça criar (`criar_categoria`, `criar_tag`, `criar_centro_custo_lucro`,
+  `criar_forma_pagamento`; ver `escrita-avancada`) ou seguir sem; não troque por
+  outro cadastro parecido.
 
 ## 3. Montar o identificador_externo
 

@@ -31,8 +31,10 @@ consulta e recusar o registro de lançamentos.
 Se você quer usar o plugin apenas para consultar, o controle está nas permissões
 de ferramentas do próprio Claude: bloqueie as ferramentas de escrita
 (`criar_lancamento`, `atualizar_lancamento`, `excluir_lancamento`,
-`registrar_pagamento`, `criar_pessoa`, `anexar_arquivo`, `excluir_anexo`,
-`conciliar` e `desconciliar`), ou
+`registrar_pagamento`, `criar_pessoa`, `criar_categoria`, `criar_tag`,
+`criar_centro_custo_lucro`, `criar_forma_pagamento`, `anexar_arquivo`,
+`anexar_arquivo_por_url`, `excluir_anexo`, `conciliar`, `desconciliar` e
+`ignorar_movimentos`), ou
 marque-as como **sempre perguntar**.
 
 Não tem conta ainda, ou esqueceu a senha? A própria tela de login tem os links
@@ -65,7 +67,8 @@ trimestre", "quantas parcelas do notebook ainda faltam".
 Além das consultas, ele registra e altera movimentos conversando:
 
 - **Criar** receita, despesa, parcelamento, recorrência, lançamento dividido em
-  itens e transferência entre contas; cadastrar cliente ou fornecedor novo.
+  itens e transferência entre contas; cadastrar cliente ou fornecedor novo e
+  criar categoria (ou subcategoria), tag, centro de custo e forma de pagamento.
 - **Alterar** um lançamento, vários de uma vez, uma parcela ou o restante de uma
   série, os itens de um lançamento dividido, tags e transferências.
 - **Excluir** um lançamento, vários, uma parcela ou o restante de uma série, um
@@ -75,12 +78,18 @@ Além das consultas, ele registra e altera movimentos conversando:
 - **Série**: aumentar ou diminuir o número de parcelas de uma série limitada
   (sempre com prévia), inclusive de transferências, que também podem se repetir.
 - **Conciliar** o extrato bancário: ver os movimentos pendentes, conciliar os
-  confiáveis e desfazer uma conciliação, sempre com prévia e o seu "sim" depois
-  dela. O que o MCP não faz (valor diferente, vários lançamentos para um
-  movimento, movimento de CSV) fica na tela de conciliação do Granatum.
-- **Anexos**: listar, baixar o link de um anexo, anexar e excluir (em duas
-  chamadas; anexar depende de o ambiente conseguir enviar o arquivo, e o
-  Claude avisa quando não consegue).
+  confiáveis, ligar um movimento à soma de vários lançamentos (ou a um
+  lançamento dividido), ignorar e restaurar movimentos e desfazer uma
+  conciliação, sempre com prévia e o seu "sim" depois dela. O que o MCP não faz
+  (valor diferente, vários movimentos para um lançamento, movimento de CSV)
+  fica na tela de conciliação do Granatum.
+- **Anexos**: listar, ler o conteúdo (imagem, PDF, texto, planilha e documento;
+  outros formatos só trazem o link) e baixar o link de um anexo, anexar e
+  excluir. Anexar um arquivo local (em duas chamadas) depende de o ambiente
+  conseguir enviá-lo, e o Claude avisa quando não consegue. Anexar **por um
+  link** que você der (em duas chamadas) não depende do ambiente: o Granatum
+  baixa o arquivo; link que exige login não funciona. No ChatGPT e no Codex,
+  o arquivo anexado à conversa vai direto, sem comando.
 - **Saldo** das contas num dia que já passou, ou dia a dia numa conta
   (inclusive previsto, que é estimativa).
 
@@ -145,11 +154,14 @@ conta e o resto se alteram pelo sistema do Granatum; o Claude avisa quando é o
 caso.
 
 **Lançamento conciliado ou em período bloqueado:** não muda de valor, conta nem
-data de pagamento, e o Claude diz o motivo em vez de tentar de novo.
+data de pagamento, e o Claude diz o motivo em vez de tentar de novo. No
+conciliado, a saída é desfazer a conciliação antes (com prévia e o seu "sim").
 
-**Anexar arquivo não funcionou:** depende de o Claude conseguir executar um
-comando com acesso à rede (é o caso do Claude Code). Onde não consegue, ele
-explica e orienta a anexar pela tela do lançamento no Granatum.
+**Anexar arquivo não funcionou:** anexar um arquivo local depende de o Claude
+conseguir executar um comando com acesso à rede (é o caso do Claude Code). Onde
+não consegue, ele explica e orienta a anexar pela tela do lançamento no
+Granatum. Anexar por link precisa de um link de download direto (HTTPS, sem
+login); uma página de login ou de visualização é recusada.
 
 ## Componentes
 
@@ -157,8 +169,9 @@ explica e orienta a anexar pela tela do lançamento no Granatum.
 - **10 skills** — 7 comandos e três bases de comportamento: `granatum-fundamentos`
   (regras de regime contábil e guardrails de escrita, em toda interação),
   `escrita-avancada` (série, prévia e confirmação, dividido, transferência,
-  pagamento e anexos) e `conciliacao` (conciliação do extrato bancário)
-- **21 ferramentas** do conector: 12 de consulta e 9 que gravam
+  pagamento, anexos e criação de categoria, tag, centro de custo e forma de pagamento) e `conciliacao` (conciliação do extrato bancário)
+- **27 ferramentas** do conector: 12 de consulta e 15 que gravam (no ChatGPT e no
+  Codex há também `anexar_arquivo_direto`)
 
 ## Privacidade
 

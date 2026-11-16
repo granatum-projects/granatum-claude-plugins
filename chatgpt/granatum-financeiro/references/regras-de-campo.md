@@ -28,7 +28,7 @@ fosse um lançamento diferente e o cliente fica com dois registros iguais.
 | --- | --- |
 | `data_vencimento` | Obrigatório. Quando o valor vence. |
 | `data_pagamento` | Presente = pago. Ausente = previsto. Não pode ser futura. |
-| `data_competencia` | Se omitida, o Granatum resolve. Nunca preencher com palpite. |
+| `data_competencia` | Se omitida, o Granatum resolve. Nunca preencher com palpite. Com `repeticao`: série com fim, a informada vale para todas as parcelas e, omitida, cada parcela fica no próprio vencimento; série sem fim, avança pela periodicidade a partir da informada. |
 
 Todas em `YYYY-MM-DD`.
 
@@ -71,6 +71,8 @@ inteiro "por segurança". Enviar só o delta confirmado com o usuário.
 id vem `0` e a descrição `null`. O `0` é o mesmo valor aceito pelo filtro
 `centro_custo_lucro_ids`, então dá para copiar o id da resposta direto para a
 próxima consulta.
+
+`conciliado` (verdadeiro quando o lançamento tem vínculo com um movimento do extrato; `desconciliar` desfaz o vínculo) também vem em cada lançamento. Num dividido agrupado (`agrupar_divididos: true`), é verdadeiro se algum item está conciliado.
 
 **Sob demanda (`campos_adicionais`):** só aparecem quando pedidos. Um grupo não
 pedido não vem nem como `null`; um grupo pedido e sem valor vem explícito

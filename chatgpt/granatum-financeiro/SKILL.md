@@ -5,11 +5,12 @@ description: >
   financial data, including cash flow, DRE, monthly summaries, pending bills,
   entries, statements, balances, configuration, or creating, correcting,
   deleting and paying entries, including series, split entries, transfers
-  and attachments, and reconciling the bank statement.
+  and attachments, creating categories, tags, cost/profit centers and payment
+  methods, and reconciling the bank statement.
   Apply the shared Granatum rules first, then load the reference that matches
   the requested operation.
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # Granatum Financeiro
@@ -26,7 +27,7 @@ conversation. For a specific request, read only the matching reference below.
 - Open payables and receivables: [pendencias.md](references/pendencias.md)
 - Entry search and statement: [extrato.md](references/extrato.md)
 - Creating a financial entry: [novo-lancamento.md](references/novo-lancamento.md), plus [regras-de-campo.md](references/regras-de-campo.md)
-- Advanced writes (editing or deleting existing entries, series and changing a series' number of installments, batch edits, tags, split entries, transfers and recurring transfers, installments and recurrence, creating a person): [escrita-avancada.md](references/escrita-avancada.md)
+- Advanced writes (editing or deleting existing entries, series and changing a series' number of installments, batch edits, tags, split entries, transfers and recurring transfers, installments and recurrence, creating a person, creating a category, tag, cost/profit center or payment method): [escrita-avancada.md](references/escrita-avancada.md)
 - Bank reconciliation (pending statement movements, reconciling, undoing a reconciliation): [conciliacao.md](references/conciliacao.md)
 - Payment (settling, partial payment, changing or reversing a payment, including transfers and mixed requests in one call) and attachments: [pagamento-e-anexos.md](references/pagamento-e-anexos.md)
 
@@ -36,3 +37,9 @@ before changing or deleting an existing entry, or before any write that reaches
 more than one entry. If the target environment exposes Granatum
 tools through a connector, use those tools; otherwise explain that the
 connection is unavailable instead of fabricating data or a successful result.
+
+For an attachment sent in the ChatGPT conversation, read [pagamento-e-anexos.md](references/pagamento-e-anexos.md)
+before claiming that uploading is unavailable. If the selected connector offers `anexar_arquivo_direto`, use it:
+this flow needs no shell. Distinguish a missing tool from a file object that ChatGPT did not provide.
+For a download link the user gives (for example from Basecamp), use `anexar_arquivo_por_url` in two calls; it needs no shell either.
+It works only with a public or signed HTTPS link that downloads without login. Never invent a link, a `file_id` or an origin.

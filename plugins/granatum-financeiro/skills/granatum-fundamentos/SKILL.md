@@ -71,7 +71,9 @@ Escritas atingem os livros reais do cliente. Não existe modo de simulação.
 
 Valem para toda ferramenta que grava: `criar_lancamento`,
 `atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento`,
-`criar_pessoa`, `anexar_arquivo`, `excluir_anexo`, `conciliar` e `desconciliar`.
+`criar_pessoa`, `criar_categoria`, `criar_tag`, `criar_centro_custo_lucro`,
+`criar_forma_pagamento`, `anexar_arquivo`, `anexar_arquivo_por_url`, `anexar_arquivo_direto` (onde existir),
+`excluir_anexo`, `conciliar`, `desconciliar` e `ignorar_movimentos`.
 Série, prévia, dividido, transferência, pagamento e anexos têm o detalhe na
 skill `escrita-avancada`; a conciliação bancária, na skill `conciliacao`.
 
@@ -83,7 +85,10 @@ skill `escrita-avancada`; a conciliação bancária, na skill `conciliacao`.
   tenham sido informados de uma vez.
 - Validar a categoria: só usar item com `aceita_lancamento=true`. Categoria-pai é
   recusada pela API. Se o usuário nomear uma categoria-pai, mostrar as folhas
-  disponíveis abaixo dela e pedir para escolher.
+  disponíveis abaixo dela e pedir para escolher. Se a categoria, a tag, o centro
+  ou a forma de pagamento que ele quer não existe, não troque por outra: ofereça
+  criá-la (`criar_categoria`, `criar_tag`, `criar_centro_custo_lucro`,
+  `criar_forma_pagamento`; regras na skill `escrita-avancada`).
 - Categoria **não** valida o `tipo_lancamento`. Existe categoria mista (aceita
   os dois tipos), e mesmo categoria exclusiva de receita ou despesa não
   bloqueia um lançamento do tipo oposto — a API não faz essa checagem. Nunca
@@ -93,6 +98,12 @@ skill `escrita-avancada`; a conciliação bancária, na skill `conciliacao`.
   devolveu um recebimento, empréstimo concedido que voltou) — não é só um risco
   a evitar. Detalhes em `references/regras-de-campo.md`.
 - Validar a conta: usar `listar_contas` com `apenas_para_lancamento=true`.
+
+**Antes de criar categoria, tag, centro de custo/lucro ou forma de pagamento:**
+listar os existentes (a mesma descrição repetida é aceita e duplicaria), usar o
+nome que o usuário deu e, em `criar_categoria` com pai que já tem lançamentos,
+perguntar o destino deles e só enviar `confirmado: true` depois do "sim" à
+prévia. Detalhe na skill `escrita-avancada`.
 
 **Antes de `atualizar_lancamento`:**
 
@@ -112,10 +123,11 @@ também para a transferência, que tem um identificador por ponta.
 
 **Prévia e escopo:**
 
-`atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento` e
-`excluir_anexo` não gravam na primeira vez quando a chamada alcança mais de um
+`atualizar_lancamento`, `excluir_lancamento`, `registrar_pagamento`,
+`excluir_anexo` e, com `este_e_proximos`, as de anexar (`anexar_arquivo`, `anexar_arquivo_por_url`,
+`anexar_arquivo_direto`) não gravam na primeira vez quando a chamada alcança mais de um
 lançamento (vários ids, "este e os próximos" ou, em `atualizar_lancamento`, uma
-mudança de `total_repeticoes`): devolvem `confirmacao_necessaria` com a prévia.
+mudança de `total_repeticoes`): devolvem `confirmacao_necessaria` com a prévia. `conciliar`, `desconciliar` e `ignorar_movimentos` também não gravam sem `confirmado: true`: toda chamada é primeiro a prévia, mesmo com um movimento só (detalhe na skill `conciliacao`).
 Numa série de transferência a contagem é por parcela e cada parcela são dois
 lançamentos; repasse as duas contagens que a prévia traz. Em lançamento de
 série, sem `escopo_serie` devolvem `escopo_necessario` (exceto a edição de

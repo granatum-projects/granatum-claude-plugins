@@ -7,8 +7,10 @@ description: >
   "troca a categoria desses lançamentos", "coloca a tag em todos", "divide esse
   lançamento", "transferir entre contas", "parcelar em 6 vezes", "lançamento
   recorrente", "dá baixa", "paguei só uma parte", "estorna o pagamento", "anexa
-  a nota fiscal", "cadastra o fornecedor" — qualquer escrita que alcance mais de
-  um lançamento, uma série, um lançamento dividido ou uma transferência.
+  a nota fiscal", "cadastra o fornecedor", "cria a categoria", "cria uma
+  subcategoria", "cria a tag", "cria o centro de custo", "cria a forma de
+  pagamento" — qualquer escrita que alcance mais de um lançamento, uma série, um
+  lançamento dividido ou uma transferência, e a criação desses cadastros.
 metadata:
   version: "0.1.0"
 ---
@@ -32,7 +34,8 @@ quando ela não diz.
 
 ## Série (parcelas e recorrência)
 
-Em `atualizar_lancamento`, `excluir_lancamento`, `anexar_arquivo` e
+Em `atualizar_lancamento`, `excluir_lancamento`, `anexar_arquivo`,
+`anexar_arquivo_por_url`, `anexar_arquivo_direto` (onde existir) e
 `excluir_anexo`, um lançamento de série sem `escopo_serie` **não grava**: a
 ferramenta devolve `status: "escopo_necessario"` com o tamanho da série
 (`tamanho_da_serie`, que conta as parcelas **vivas**, ou `serie_sem_fim`) e a
@@ -94,7 +97,7 @@ Com um id e sem série não há prévia, exceto na exclusão de lançamento divi
 ### Quando algum id é impedido
 
 Com vários ids, todo id pedido é alvo. Se algum está impedido pelo estado
-(conciliado, pago até a data de bloqueio de caixa, com competência até a de
+(conciliado (a saída é `desconciliar` antes, perfis Administrador e Lançamentos), pago até a data de bloqueio de caixa, com competência até a de
 competência, saldo inicial, cobrança ou NFS-e
 agendada, fatura de cartão; na exclusão e no pagamento, também transferência
 com ponta impedida), **nada** é
@@ -118,11 +121,24 @@ inexistente ou de outra empresa recusa o pedido todo.
 competência, observação, documento e tags). `identificador_externo`, `itens_*` e
 `escopo_serie` não valem com vários ids.
 
+Num **dividido**, o id de um item mexe só naquele item nos campos de item
+(categoria, centro, pessoa, forma e tags); vencimento, competência, conta, tipo
+de documento, documento e observação valem para o dividido todo com o id de
+qualquer item. Para mudar o dividido inteiro, mande os ids de todos os itens
+(`obter_lancamentos` com `lancamento_ids` traz os ids dos itens).
+
 - Omitir um campo preserva o gravado; `0` nos vínculos (`pessoa_id`,
   `centro_custo_lucro_id`, `forma_pagamento_id`) remove. Envie só o delta que o
   usuário confirmou.
 - **Tags**: `tags_adicionar` e `tags_remover` não substituem o conjunto, as
   outras ficam. Para "coloca a tag X em todos", use `tags_adicionar`.
+- **Competência numa série** (`data_competencia` com `escopo_serie:
+  "este_e_proximos"`): em série sem fim, a informada vale para a parcela pedida
+  e as seguintes andam a partir dela pela periodicidade, no mesmo dia (cortado
+  no fim do mês); em série com fim, vale para todas, da parcela pedida em
+  diante, se a série já tem a mesma competência na primeira e na última parcela,
+  senão as seguintes andam a partir dela. `""` deixa cada parcela no próprio
+  vencimento. Mostre isso na prévia.
 - **Pagamento** não se edita aqui: em lançamento, `data_pagamento` é recusado.
   Dar baixa, trocar a data ou estornar é `registrar_pagamento`.
 - **Cobrança ou NFS-e agendada**: só aceitam observação, documento, tipo de
@@ -170,7 +186,11 @@ parcelas de uma série **limitada** (lançamento, dividido ou transferência).
   `quantidade_de_parcelas_a_criar` e `quantidade_de_parcelas_a_excluir`. Mostre
   as duas, diga que as novas são cópias da última parcela em aberto (em aberto,
   sem identificador externo) e que diminuir **exclui** as parcelas em aberto
-  acima do novo total, e só confirme depois do "sim" à prévia. Se o total pedido
+  acima do novo total, e só confirme depois do "sim" à prévia. A competência das
+  parcelas novas é a da última parcela não excluída (igual em todas as novas);
+  numa série que nasceu com a competência igual ao vencimento, cada nova fica no
+  próprio vencimento, o que vale também quando a última parcela não tem
+  competência gravada. Se o total pedido
   é o já gravado, nada muda: diga isso ao usuário.
 - **Avulso que vira série:** `total_repeticoes` com `periodicidade` (`DS`, `D1`,
   `D7`, `D15`, `M1`, `M2`, `M3`, `M6` ou `M12`; `DS` é segunda a sexta). Pergunte
@@ -211,7 +231,7 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
   pontas fica como está e aparece em `pulados`. Em série **sem fim**, as parcelas
   que sobram deixam de repetir nas duas pontas.
 - Se a resposta vier `nao_excluido` (conciliado, pago no caixa fechado, competência fechada, saldo
-  inicial), nada foi excluído; repasse o motivo.
+  inicial), nada foi excluído; repasse o motivo. No conciliado, proponha `desconciliar` antes (perfis Administrador e Lançamentos; referência `conciliacao.md`).
 
 ## Transferência entre contas
 
@@ -267,7 +287,10 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
 
 - `repeticao` (`periodicidade` e `total_repeticoes` **ou** `infinito: true`,
   nunca os dois): **confirme a quantidade antes**, porque cada ocorrência é um
-  lançamento real (na transferência, um par de pontas). A resposta traz
+  lançamento real (na transferência, um par de pontas). Com `data_competencia`,
+  na série com fim ela vale para todas as parcelas e, omitida, cada parcela fica
+  no próprio vencimento; na série sem fim, avança pela periodicidade a partir da
+  informada. A resposta traz
   `repeticao.grupo_id` e `quantidade_criada`. Para mudar depois o número de
   parcelas, `total_repeticoes` em `atualizar_lancamento` (acima).
 - `itens`: o total é a soma dos itens; `valor`, `categoria_id` e os demais
@@ -276,11 +299,52 @@ inequívoco, identificando o que sai. Série pergunta o escopo; vários ids e
 
 ## Pessoa
 
-`criar_pessoa` só depois de `buscar_pessoas` por nome ou nome fantasia: o mesmo
+`buscar_pessoas` aceita `termo` vazio (devolve as primeiras pessoas por nome) e
+só aceita `tipo` `cliente`, `fornecedor` ou `todos`: outro valor é recusado como
+argumento inválido, não vira "todas". `criar_pessoa` só depois de
+`buscar_pessoas` por nome ou documento: o mesmo
 nome repetido é aceito e duplicaria o cadastro. Só `nome` e `papel` são
-obrigatórios. Use só os campos que a ferramenta oferece: dados de cadastro que ela
-não recebe, não peça ao usuário; oriente-o a completá-los pela tela do Granatum.
-Editar e excluir pessoa não existem aqui.
+obrigatórios; nunca invente documento. Use só os campos que a ferramenta oferece:
+se ela não tiver campo de documento, não peça o documento ao usuário e oriente-o a
+preenchê-lo pela tela do Granatum. Editar e excluir pessoa não existem aqui.
+
+## Cadastros: categoria, tag, centro de custo/lucro e forma de pagamento
+
+`criar_categoria`, `criar_tag`, `criar_centro_custo_lucro` e
+`criar_forma_pagamento` criam o cadastro na empresa; o id vai depois em
+`criar_lancamento` (`categoria_id`, `tag_ids`, `centro_custo_lucro_id`,
+`forma_pagamento_id`). Exigem autorização de escrita e um perfil que cria
+cadastro (o perfil só de relatórios é recusado). Editar, inativar e excluir
+cadastro não existem aqui: diga que isso se faz pela tela do Granatum.
+
+- **Liste antes** (`listar_categorias`, `listar_tags`, `listar_centros_custo_lucro`,
+  `listar_formas_pagamento`): o Granatum aceita a mesma descrição repetida e
+  duplicaria o cadastro. A tag que já existe (ativa ou inativa, sem diferença de
+  maiúscula, acento ou espaço no fim) é recusada; use o id dela. Se o cadastro
+  existe, use o id e não crie outro.
+- **O nome é do usuário**: não invente nem "melhore" a descrição. Vale de 2 a 80
+  caracteres, sem os espaços das pontas; a tag não aceita vírgula. Se foi você
+  quem sugeriu criar, mostre nome (e pai, e tipo da categoria raiz) e espere o
+  "sim"; se o usuário pediu o cadastro com o nome dito, não precisa de segunda
+  confirmação. Tag, centro e forma gravam na primeira chamada.
+- **Categoria**: sem `parent_id` ela nasce na raiz e o `tipo` (`despesa` ou
+  `receita`) é obrigatório: pergunte, não deduza do nome. Com `parent_id` ela é
+  filha, herda tipo e cor do pai (o `tipo` enviado é ignorado) e o **pai passa a
+  não aceitar lançamento**; avise isso **antes** de chamar a tool (ao propor ou
+  ao confirmar o nome), mesmo que o usuário tenha dado o nome da filha. O pai
+  vem de `listar_categorias`.
+- **Pai com lançamentos diretos**: sem destino nada é criado e a resposta
+  (`recusado`) traz a quantidade. Pergunte ao usuário para onde mover esses
+  lançamentos: para a categoria nova (`migrar_para_nova: true`) ou para outra
+  que aceite lançamento (`migracao_id`, de `listar_categorias`); nunca os dois.
+  Com o destino a primeira chamada **não grava**: devolve a prévia
+  (`confirmacao_necessaria`, com quantos lançamentos seriam movidos e os
+  impedidos). Mostre-a e só reenvie com `confirmado: true` depois do "sim" a
+  **essa** prévia; a criação e o movimento acontecem juntos. Com impedidos na
+  prévia, repasse a lista e não contorne.
+- **Centro de custo/lucro**: `parent_id` opcional (de
+  `listar_centros_custo_lucro`); diferente da categoria, o pai continua aceitando
+  lançamento.
 
 ## Pagamento e anexos
 
